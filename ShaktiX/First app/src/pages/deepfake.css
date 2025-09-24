@@ -1,0 +1,72 @@
+/* Deepfake Detection styles */
+
+.deepfake-page { padding-top: 5rem; }
+
+/* Hero */
+.deepfake-hero {
+  background: radial-gradient(900px 420px at 20% -10%, rgba(0,212,255,0.12), transparent),
+              radial-gradient(800px 360px at 110% 0%, rgba(168,85,247,0.08), transparent),
+              #0b1224;
+  border-bottom: 1px solid rgba(51,65,85,0.5);
+}
+.deepfake-hero-content { text-align: center; padding: 2rem 1rem 2.25rem; }
+.deepfake-title { font-size: 2.2rem; font-weight: 900; margin: 0 0 0.5rem; }
+.deepfake-title { background: linear-gradient(135deg, #fff, #c4b5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.deepfake-subtitle { color: rgba(255,255,255,0.9); margin-bottom: 1.5rem; }
+
+/* Analyze Interface */
+.analyze-interface { max-width: 600px; margin: 0 auto; }
+.file-input { margin-bottom: 1rem; }
+.file-hint { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin-bottom: 1rem; }
+.file-preview { margin: 1rem 0; }
+.file-info { color: rgba(255,255,255,0.9); margin-bottom: 0.75rem; }
+.preview-image { max-width: 200px; max-height: 200px; border-radius: 12px; object-fit: cover; }
+.analyze-btn { margin: 1rem 0; }
+.accuracy-note { color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-top: 1rem; }
+
+/* Workflow Section */
+.workflow-section { padding: 2rem 0 3rem; }
+.workflow-title { text-align: center; font-size: 2rem; font-weight: 900; margin-bottom: 2rem; color: #fff; }
+
+/* Step Indicators */
+.step-indicators { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; }
+.step-indicator { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0.5; transition: opacity 0.3s ease; }
+.step-indicator.active { opacity: 1; }
+.step-number { width: 40px; height: 40px; border-radius: 50%; background: rgba(51,65,85,0.5); border: 2px solid rgba(51,65,85,0.5); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #94a3b8; transition: all 0.3s ease; }
+.step-indicator.active .step-number { background: rgba(168,85,247,0.15); border-color: #a855f7; color: #a855f7; }
+.step-label { font-size: 0.9rem; font-weight: 600; color: #94a3b8; }
+.step-indicator.active .step-label { color: #a855f7; }
+
+/* Workflow Grid */
+.workflow-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; }
+@media (min-width: 768px) { .workflow-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .workflow-grid { grid-template-columns: repeat(4, 1fr); } }
+
+/* Workflow Cards */
+.workflow-card { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid rgba(51,65,85,0.55); border-radius: 16px; padding: 1.25rem; box-shadow: inset 0 0 0 1px rgba(0,212,255,0.06), 0 12px 30px rgba(2, 6, 23, 0.6); min-height: 200px; }
+.workflow-card h3 { margin: 0 0 0.5rem; font-size: 1.25rem; }
+.workflow-card p { color: rgba(255,255,255,0.85); margin-bottom: 1rem; font-size: 0.9rem; }
+.workflow-card.upload h3 { color: #86e7ff; }
+.workflow-card.analyze h3 { color: #a855f7; }
+.workflow-card.review h3 { color: #ffd8a1; }
+.workflow-card.mitigate h3 { color: #86efac; }
+
+/* Status Elements */
+.upload-status, .mitigation-status { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; color: #86efac; font-size: 0.9rem; }
+.status-check { font-size: 1.1rem; font-weight: 700; }
+.analyzing-text { color: #a855f7; font-size: 0.9rem; margin-top: 0.5rem; }
+
+/* Analysis Results */
+.analysis-result { margin-top: 0.75rem; }
+.confidence-score { background: rgba(255,255,255,0.04); border: 1px dashed rgba(51,65,85,0.6); border-radius: 8px; padding: 0.5rem; font-size: 0.85rem; color: #e2e8f0; margin-bottom: 0.5rem; }
+.detection-result { padding: 0.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; }
+.detection-result.deepfake { background: rgba(239,68,68,0.15); color: #fca5a5; }
+.detection-result.authentic { background: rgba(34,197,94,0.15); color: #86efac; }
+
+/* Review Details */
+.review-details { margin-top: 0.75rem; font-size: 0.85rem; color: rgba(255,255,255,0.85); }
+.review-details > div { margin-bottom: 0.25rem; }
+
+/* Workflow Actions */
+.workflow-actions { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+.workflow-actions .button { min-width: 160px; }

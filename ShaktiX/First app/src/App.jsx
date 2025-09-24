@@ -19,12 +19,22 @@ import VideoConsultation from "./pages/health-pages/VideoConsultation";
 import MedicalHistory from "./pages/health-pages/MedicalHistory";
 import MenstrualTracker from "./pages/health-pages/MenstrualTracker";
 import PregnancyTracker from "./pages/health-pages/PregnancyTracker";
+import Cybersecurity from "./pages/Cybersecurity";
+import OneClickReport from "./pages/OneClickReport";
+import EvidenceLocker from "./pages/EvidenceLocker";
+import DeepfakeDetection from "./pages/DeepfakeDetection";
+import VoiceShield from "./pages/VoiceShield";
 
 const App = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/services" element={<Services />} />
+      <Route path="/cybersecurity" element={<Cybersecurity />} />
+      <Route path="/oneclickreport" element={<OneClickReport />} />
+      <Route path="/evidence-locker" element={<EvidenceLocker />} />
+      <Route path="/deepfake-detection" element={<DeepfakeDetection />} />
+      <Route path="/voice-shield" element={<VoiceShield />} />
       <Route path="/health" element={<Health />} />
       {/* Service detail route from health services grid */}
       <Route path="/service/:id" element={<ServiceDetail />} />

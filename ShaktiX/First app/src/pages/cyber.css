@@ -1,0 +1,88 @@
+/* Cybersecurity page styles */
+
+.cyber-hero {
+  position: relative;
+  min-height: 86vh;
+  display: flex;
+  align-items: center;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(0,212,255,0.15), transparent),
+    radial-gradient(1000px 500px at 120% 0%, rgba(0,153,204,0.12), transparent),
+    linear-gradient(180deg, #0b1224 0%, #0f172a 100%);
+  overflow: hidden;
+}
+
+/* Decorative lock rings */
+.cyber-hero:before,
+.cyber-hero:after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 120px 40px rgba(0,212,255,0.06) inset;
+}
+
+.cyber-hero:before { width: 680px; height: 680px; top: -240px; left: -180px; border: 1px solid rgba(134,231,255,0.08); }
+.cyber-hero:after { width: 520px; height: 520px; bottom: -200px; right: -140px; border: 1px solid rgba(0,153,204,0.08); }
+
+.cyber-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 200 200" opacity="0.08"><g fill="none" stroke="%23ffffff"><rect x="20" y="120" width="80" height="60" rx="10"/><circle cx="60" cy="150" r="6"/><path d="M40 120v-18a20 20 0 0 1 40 0v18"/></g></svg>') center/420px repeat;
+}
+
+.cyber-hero-content {
+  position: relative;
+  z-index: 1;
+  padding-top: 6rem; /* offset for fixed navbar */
+  text-align: center;
+  max-width: 900px;
+}
+
+.cyber-hero-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(0,212,255,0.15);
+  border: 1px solid rgba(0,212,255,0.35);
+  color: #86e7ff;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.cyber-hero-title {
+  font-size: 2.75rem;
+  line-height: 1.15;
+  font-weight: 900;
+  margin: 0.25rem 0 0.75rem;
+  color: #e2e8f0;
+}
+
+.cyber-hero-gradient {
+  background: linear-gradient(135deg, #00d4ff, #10e0cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cyber-hero-subtitle {
+  color: rgba(255,255,255,0.9);
+  max-width: 720px;
+  margin: 0 auto 1.25rem;
+}
+
+.cyber-hero-actions {
+  display: inline-flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .cyber-hero-title { font-size: 3.25rem; }
+}
+
+/* Make feature cards one row on desktop for this page */
+.cyber-page .tech-grid { grid-template-columns: 1fr; }
+@media (min-width: 768px) {
+  .cyber-page .tech-grid { grid-template-columns: repeat(4, 1fr) !important; }
+}
