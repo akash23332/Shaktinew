@@ -24,7 +24,6 @@ export default function DeepfakeDetection() {
     if (!file) return;
     
     setAnalyzing(true);
-    setCurrentStep(2);
     
     try {
       // Create FormData for file upload
@@ -32,7 +31,7 @@ export default function DeepfakeDetection() {
       formData.append('image', file);
       
       // Call the real API endpoint
-      const response = await fetch('http://localhost:3001/api/deepfake/analyze', {
+      const response = await fetch('/api/deepfake/analyze', {
         method: 'POST',
         body: formData,
       });
@@ -41,58 +40,13 @@ export default function DeepfakeDetection() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const data = await response.json();
-      
-      if (data.success) {
-        setResult(data.analysis);
-        setCurrentStep(3);
-      } else {
-        throw new Error(data.error || 'Analysis failed');
-      }
-    } catch (error) {
-      console.error('Analysis error:', error);
-      // Fallback to mock data if API fails
-      const mockResult = {
-        confidence: Math.random() > 0.5 ? 0.85 : 0.23,
-        isDeepfake: Math.random() > 0.5,
-        details: {
-          faceConsistency: Math.random(),
-          temporalCoherence: Math.random(),
-          artifactDetection: Math.random(),
-          modelUsed: 'Fallback Analysis (API Error)',
-          processingTime: 0
-        },
-        metadata: {
-          filename: file.name,
-          fileSize: file.size,
-          uploadTime: new Date().toISOString()
-        }
-      };
-      setResult(mockResult);
-      setCurrentStep(3);
-      alert('API connection failed. Using fallback analysis. Please check if the server is running.');
-    } finally {
-      setAnalyzing(false);
-    }
-  };
-
-  const generateReport = async () => {
-    if (!result) {
-      alert("No analysis result available. Please analyze an image first.");
-      return;
-    }
-    
-    console.log('Generating report for result:', result);
-    
-    try {
-      const requestBody = {
+{{ ... }}
         analysisData: result,
         reportType: 'standard'
       };
       
       console.log('Sending report request:', requestBody);
-      
-      const response = await fetch('http://localhost:3001/api/deepfake/generate-report', {
+      const response = await fetch('/api/deepfake/generate-report', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -102,6 +56,7 @@ export default function DeepfakeDetection() {
       
       console.log('Report response status:', response.status);
       
+{{ ... }}
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Server error response:', errorText);

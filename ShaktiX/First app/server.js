@@ -18,19 +18,13 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-// Robust CORS to support standalone test pages and preflight requests
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow all origins, including file:// (origin will be undefined/null)
-    callback(null, true);
-  },
+// Simplified CORS configuration
+app.use(cors({
+  origin: true, // Allow all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false,
-};
-app.use(cors(corsOptions));
-// Explicitly handle preflight requests for all routes
-app.options('*', cors(corsOptions));
+}));
 app.use(express.json());
 
 // Initialize Email Transporter

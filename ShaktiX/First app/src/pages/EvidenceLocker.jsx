@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import "./evidence.css";
 
 export default function EvidenceLocker() {
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
   const [file, setFile] = useState(null);
   const [hash, setHash] = useState("");
   const [timestamp, setTimestamp] = useState("");
@@ -62,7 +63,7 @@ export default function EvidenceLocker() {
       setBusy(true);
       console.log('Preserving evidence...');
 
-      const response = await fetch('http://localhost:3001/api/evidence/store', {
+      const response = await fetch(`${API_BASE}/evidence/store`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,7 +111,7 @@ export default function EvidenceLocker() {
       setBusy(true);
       console.log('Verifying evidence...');
 
-      const response = await fetch('http://localhost:3001/api/evidence/verify-hash', {
+      const response = await fetch(`${API_BASE}/evidence/verify-hash`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +155,7 @@ export default function EvidenceLocker() {
       setSearchError("");
       console.log('Searching for evidence:', searchId);
 
-      const response = await fetch(`http://localhost:3001/api/evidence/${searchId}`, {
+      const response = await fetch(`${API_BASE}/evidence/${searchId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -253,6 +253,13 @@
   
   .input-card { grid-column: 1 / -1; }
   
+  /* Center the result card when it has analysis results */
+  .result-card:has(.analysis-results) {
+    grid-column: 1 / -1;
+    max-width: 800px;
+    margin: 0 auto 1.5rem auto;
+  }
+  
   .characteristics-grid {
     grid-template-columns: repeat(4, 1fr);
   }
