@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShaktiX Deepfake Detection Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .status-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 5px solid #28a745;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .status-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .status-value {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .status-healthy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .upload-section {
+            background: #fff;
+            border: 3px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+
+        .upload-section.dragover {
+            border-color: #28a745;
+            background: #f8fff8;
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 1.2em;
+            color: #495057;
+            margin-bottom: 20px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,123,255,0.4);
+        }
+
+        .upload-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .results-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .verdict {
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .verdict.authentic {
+            color: #28a745;
+        }
+
+        .verdict.deepfake {
+            color: #dc3545;
+        }
+
+        .confidence {
+            font-size: 1.3em;
+            color: #6c757d;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .detail-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .detail-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #007bff;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-section {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-section.show {
+            display: block;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ ShaktiX Deepfake Detection</h1>
+            <p>Advanced AI-powered deepfake detection system</p>
+        </div>
+
+        <div class="content">
+            <!-- Server Status Section -->
+            <div class="status-section">
+                <h3 style="margin-bottom: 20px; color: #495057;">🔍 Server Status</h3>
+                <div id="serverStatus">
+                    <div class="status-item">
+                        <span class="status-label">Server Connection:</span>
+                        <span id="connectionStatus" class="status-value">Checking...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">AI Model Status:</span>
+                        <span id="aiStatus" class="status-value">Checking...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Last Updated:</span>
+                        <span id="lastUpdated" class="status-value">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-icon">📸</div>
+                <div class="upload-text">
+                    <strong>Upload an image to analyze for deepfake detection</strong><br>
+                    Drag and drop your image here or click to browse
+                </div>
+                <input type="file" id="fileInput" class="file-input" accept="image/*">
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    Choose Image
+                </button>
+                <div style="margin-top: 15px; font-size: 0.9em; color: #6c757d;">
+                    Supported formats: JPG, PNG, WebP (Max: 10MB)
+                </div>
+            </div>
+
+            <!-- Loading Section -->
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <h3>Analyzing Image...</h3>
+                <p>Our AI is examining your image for deepfake indicators</p>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection">
+                <div class="result-header">
+                    <div class="verdict" id="verdict">AUTHENTIC</div>
+                    <div class="confidence" id="confidenceText">Confidence: 85.2%</div>
+                </div>
+
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <div class="detail-label">Face Consistency</div>
+                        <div class="detail-value" id="faceConsistency">92%</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Temporal Coherence</div>
+                        <div class="detail-value" id="temporalCoherence">95%</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Artifact Detection</div>
+                        <div class="detail-value" id="artifactDetection">78%</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-label">Processing Time</div>
+                        <div class="detail-value" id="processingTime">1.2s</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background: white; border-radius: 10px;">
+                    <h4 style="margin-bottom: 15px; color: #495057;">Technical Details</h4>
+                    <div id="technicalDetails" style="font-family: monospace; font-size: 0.9em; color: #6c757d;">
+                        Model: Loading...
+                    </div>
+                </div>
+
+                <button class="btn-secondary" onclick="resetAnalysis()">Analyze Another Image</button>
+            </div>
+
+            <!-- Error Section -->
+            <div class="error-section" id="errorSection">
+                <h4>❌ Analysis Failed</h4>
+                <p id="errorMessage">An error occurred during analysis.</p>
+                <button class="btn-secondary" onclick="resetAnalysis()">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001/api';
+        
+        // Check server status on load
+        window.addEventListener('load', checkServerStatus);
+
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                document.getElementById('connectionStatus').textContent = 'Connected';
+                document.getElementById('connectionStatus').className = 'status-value status-healthy';
+                
+                document.getElementById('aiStatus').textContent = data.ai_available ? 'AI Model Active' : 'Fallback Mode';
+                document.getElementById('aiStatus').className = `status-value ${data.ai_available ? 'status-healthy' : 'status-error'}`;
+                
+                document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+                document.getElementById('lastUpdated').className = 'status-value status-healthy';
+                
+            } catch (error) {
+                document.getElementById('connectionStatus').textContent = 'Connection Failed';
+                document.getElementById('connectionStatus').className = 'status-value status-error';
+                
+                document.getElementById('aiStatus').textContent = 'Unavailable';
+                document.getElementById('aiStatus').className = 'status-value status-error';
+                
+                console.error('Server status check failed:', error);
+            }
+        }
+
+        // File upload handling
+        const fileInput = document.getElementById('fileInput');
+        const uploadSection = document.getElementById('uploadSection');
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Drag and drop functionality
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        async function handleFile(file) {
+            // Validate file
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file.');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                showError('File size must be less than 10MB.');
+                return;
+            }
+
+            // Show loading
+            showLoading();
+
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const response = await fetch(`${API_BASE}/deepfake/analyze`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showResults(result.analysis);
+                } else {
+                    showError(result.error || 'Analysis failed');
+                }
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                showError('Network error: Could not connect to analysis server');
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('uploadSection').style.display = 'none';
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('errorSection').classList.remove('show');
+            document.getElementById('loadingSection').classList.add('show');
+        }
+
+        function showResults(analysis) {
+            document.getElementById('loadingSection').classList.remove('show');
+            
+            // Update verdict
+            const verdict = analysis.isDeepfake ? 'DEEPFAKE DETECTED' : 'AUTHENTIC';
+            const verdictElement = document.getElementById('verdict');
+            verdictElement.textContent = verdict;
+            verdictElement.className = `verdict ${analysis.isDeepfake ? 'deepfake' : 'authentic'}`;
+            
+            // Update confidence
+            document.getElementById('confidenceText').textContent = 
+                `Confidence: ${(analysis.confidence * 100).toFixed(1)}%`;
+            
+            // Update details
+            document.getElementById('faceConsistency').textContent = 
+                `${(analysis.details.faceConsistency * 100).toFixed(0)}%`;
+            document.getElementById('temporalCoherence').textContent = 
+                `${(analysis.details.temporalCoherence * 100).toFixed(0)}%`;
+            document.getElementById('artifactDetection').textContent = 
+                `${(analysis.details.artifactDetection * 100).toFixed(0)}%`;
+            document.getElementById('processingTime').textContent = 
+                `${analysis.details.processingTime}s`;
+            
+            // Update technical details
+            document.getElementById('technicalDetails').innerHTML = `
+                Model: ${analysis.details.modelUsed}<br>
+                Processing Time: ${analysis.details.processingTime} seconds<br>
+                Analysis Timestamp: ${new Date().toLocaleString()}
+            `;
+            
+            document.getElementById('resultsSection').classList.add('show');
+        }
+
+        function showError(message) {
+            document.getElementById('loadingSection').classList.remove('show');
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorSection').classList.add('show');
+        }
+
+        function resetAnalysis() {
+            document.getElementById('uploadSection').style.display = 'block';
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('errorSection').classList.remove('show');
+            document.getElementById('loadingSection').classList.remove('show');
+            document.getElementById('fileInput').value = '';
+        }
+
+        // Refresh server status every 30 seconds
+        setInterval(checkServerStatus, 30000);
+    </script>
+</body>
+</html>

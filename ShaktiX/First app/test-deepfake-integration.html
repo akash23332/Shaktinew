@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShaktiX Deepfake Detection - Integration Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #ffd700;
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status.success {
+            background: rgba(46, 204, 113, 0.3);
+            border: 1px solid #2ecc71;
+        }
+        .status.error {
+            background: rgba(231, 76, 60, 0.3);
+            border: 1px solid #e74c3c;
+        }
+        .status.info {
+            background: rgba(52, 152, 219, 0.3);
+            border: 1px solid #3498db;
+        }
+        .file-input {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-input:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        .results {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .progress {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 ShaktiX Deepfake Detection Test</h1>
+        
+        <div class="test-section">
+            <h3>🏥 Backend Health Check</h3>
+            <button onclick="testHealthCheck()">Test Health Endpoint</button>
+            <div id="health-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📁 File Upload Test</h3>
+            <div class="file-input" onclick="document.getElementById('fileInput').click()">
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+                <p>Click to select an image file (PNG, JPG, JPEG, WebP)</p>
+                <p id="file-info">No file selected</p>
+            </div>
+            <button id="analyzeBtn" onclick="testAnalyzeImage()" disabled>🔍 Analyze Image</button>
+            <div class="progress" id="progress" style="display: none;">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div id="analyze-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Report Generation Test</h3>
+            <button id="reportBtn" onclick="testReportGeneration()" disabled>📋 Generate Report</button>
+            <div id="report-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📈 Test Results</h3>
+            <div id="results" class="results">Ready to run tests...</div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let analysisResult = null;
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}\n`;
+            results.textContent += logEntry;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function showStatus(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function testHealthCheck() {
+            log('🏥 Testing backend health check...', 'info');
+            showStatus('health-status', '⏳ Checking server health...', 'info');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('✅ Health check passed!', 'success');
+                    log(`Server status: ${data.status}`, 'info');
+                    log(`AI available: ${data.ai_available}`, 'info');
+                    showStatus('health-status', `✅ Server is healthy! AI Models: ${data.ai_available ? 'Available' : 'Fallback mode'}`, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                log(`❌ Health check failed: ${error.message}`, 'error');
+                showStatus('health-status', `❌ Server not responding: ${error.message}`, 'error');
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('file-info').textContent = `Selected: ${file.name} (${Math.round(file.size/1024)} KB)`;
+                document.getElementById('analyzeBtn').disabled = false;
+                log(`📁 File selected: ${file.name}`, 'info');
+            }
+        }
+
+        async function testAnalyzeImage() {
+            if (!selectedFile) {
+                log('❌ No file selected', 'error');
+                return;
+            }
+
+            log('🔍 Starting image analysis...', 'info');
+            showStatus('analyze-status', '⏳ Analyzing image...', 'info');
+            
+            // Show progress bar
+            document.getElementById('progress').style.display = 'block';
+            animateProgress();
+
+            try {
+                const formData = new FormData();
+                formData.append('image', selectedFile);
+
+                const response = await fetch('http://localhost:3001/api/deepfake/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    analysisResult = data.analysis;
+                    log('✅ Analysis completed successfully!', 'success');
+                    log(`Confidence: ${(analysisResult.confidence * 100).toFixed(1)}%`, 'info');
+                    log(`Result: ${analysisResult.isDeepfake ? 'Potential Deepfake' : 'Appears Authentic'}`, 'info');
+                    log(`Model: ${analysisResult.details.modelUsed}`, 'info');
+                    
+                    showStatus('analyze-status', 
+                        `✅ Analysis complete! Confidence: ${(analysisResult.confidence * 100).toFixed(1)}% - ${analysisResult.isDeepfake ? 'Potential Deepfake' : 'Appears Authentic'}`, 
+                        analysisResult.isDeepfake ? 'error' : 'success'
+                    );
+                    
+                    document.getElementById('reportBtn').disabled = false;
+                } else {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                log(`❌ Analysis failed: ${error.message}`, 'error');
+                showStatus('analyze-status', `❌ Analysis failed: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('progress').style.display = 'none';
+            }
+        }
+
+        async function testReportGeneration() {
+            if (!analysisResult) {
+                log('❌ No analysis result available', 'error');
+                return;
+            }
+
+            log('📊 Generating report...', 'info');
+            showStatus('report-status', '⏳ Generating report...', 'info');
+
+            try {
+                const response = await fetch('http://localhost:3001/api/deepfake/generate-report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        analysisData: analysisResult,
+                        reportType: 'standard'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    log('✅ Report generated successfully!', 'success');
+                    log(`Report ID: ${data.report.id}`, 'info');
+                    log(`Verdict: ${data.report.summary.verdict}`, 'info');
+                    log(`Risk Level: ${data.report.summary.riskLevel}`, 'info');
+                    
+                    showStatus('report-status', 
+                        `✅ Report generated! ID: ${data.report.id} - ${data.report.summary.verdict}`, 
+                        'success'
+                    );
+                } else {
+                    throw new Error(data.error || 'Report generation failed');
+                }
+            } catch (error) {
+                log(`❌ Report generation failed: ${error.message}`, 'error');
+                showStatus('report-status', `❌ Report generation failed: ${error.message}`, 'error');
+            }
+        }
+
+        function animateProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            let width = 0;
+            const interval = setInterval(() => {
+                width += Math.random() * 15;
+                if (width >= 100) {
+                    width = 100;
+                    clearInterval(interval);
+                }
+                progressBar.style.width = width + '%';
+            }, 200);
+        }
+
+        // Auto-run health check on page load
+        window.onload = function() {
+            log('🚀 ShaktiX Deepfake Detection Integration Test Started', 'info');
+            log('Backend URL: http://localhost:3001', 'info');
+            setTimeout(testHealthCheck, 1000);
+        };
+    </script>
+</body>
+</html>
