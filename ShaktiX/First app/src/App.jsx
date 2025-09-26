@@ -18,7 +18,7 @@ import MedicineTracker from "./pages/health-pages/MedicineTracker";
 import VideoConsultation from "./pages/health-pages/VideoConsultation";
 import MedicalHistory from "./pages/health-pages/MedicalHistory";
 import MenstrualTracker from "./pages/health-pages/MenstrualTracker";
-import PregnancyTracker from "./pages/health-pages/PregnancyTracker";
+import PregnancyTracker from "./pages/PregnancyTracker";
 import Cybersecurity from "./pages/Cybersecurity";
 import OneClickReport from "./pages/OneClickReport";
 import EvidenceLocker from "./pages/EvidenceLocker";

@@ -39,36 +39,53 @@ export default function DeepfakeDetection() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
-{{ ... }}
+      // Read analysis JSON and update UI state
+      const analysis = await response.json();
+      setResult(analysis);
+      setCurrentStep(3);
+    } catch (error) {
+      console.error('Image analysis error:', error);
+      alert(`Analysis failed: ${error.message}`);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  // Generate a human-readable report via server using existing analysis result
+  const generateReport = async () => {
+    try {
+      if (!result) {
+        alert('No analysis result available. Please analyze an image first.');
+        return;
+      }
+      const requestBody = {
         analysisData: result,
         reportType: 'standard'
       };
-      
+
       console.log('Sending report request:', requestBody);
-      const response = await fetch('/api/deepfake/generate-report', {
+      const reportResponse = await fetch('/api/deepfake/generate-report', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
       });
-      
-      console.log('Report response status:', response.status);
-      
-{{ ... }}
-      if (!response.ok) {
-        const errorText = await response.text();
+
+      console.log('Report response status:', reportResponse.status);
+
+      if (!reportResponse.ok) {
+        const errorText = await reportResponse.text();
         console.error('Server error response:', errorText);
-        throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        throw new Error(`HTTP error! status: ${reportResponse.status} - ${errorText}`);
       }
-      
-      const data = await response.json();
+
+      const data = await reportResponse.json();
       console.log('Report response data:', data);
-      
+
       if (data.success && data.report) {
         setCurrentStep(4);
-        
+
         // Create a more detailed report display
         const reportSummary = `
 🔍 DEEPFAKE ANALYSIS REPORT
@@ -89,7 +106,7 @@ export default function DeepfakeDetection() {
 
 ✅ Report generated successfully and ready for submission!
         `.trim();
-        
+
         alert(reportSummary);
       } else {
         throw new Error(data.error || data.message || 'Report generation failed - no success flag');
@@ -97,7 +114,7 @@ export default function DeepfakeDetection() {
     } catch (error) {
       console.error('Report generation error:', error);
       setCurrentStep(4);
-      
+
       // Show detailed error information
       const errorMessage = `
 ❌ REPORT GENERATION FAILED
@@ -108,11 +125,11 @@ Error: ${error.message}
 Analysis report generated locally and ready for platform submission.
 
 📊 Quick Summary:
-• Verdict: ${result.isDeepfake ? 'POTENTIAL DEEPFAKE' : 'APPEARS AUTHENTIC'}
-• Confidence: ${(result.confidence * 100).toFixed(1)}%
-• Model: ${result.details?.modelUsed || 'ShaktiX Analysis'}
+• Verdict: ${result?.isDeepfake ? 'POTENTIAL DEEPFAKE' : 'APPEARS AUTHENTIC'}
+• Confidence: ${result ? (result.confidence * 100).toFixed(1) : 'N/A'}%
+• Model: ${result?.details?.modelUsed || 'ShaktiX Analysis'}
       `.trim();
-      
+
       alert(errorMessage);
     }
   };

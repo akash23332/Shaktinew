@@ -9,10 +9,12 @@ const NearbyDoctors = () => {
   const [error, setError] = useState('');
   const [doctors, setDoctors] = useState([]);
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
-  const [searchRadius, setSearchRadius] = useState(5000); // Default 5km in meters
   const [debugInfo, setDebugInfo] = useState(null);
   const [radiusKm, setRadiusKm] = useState(5); // search radius in KM
   const [dataSource, setDataSource] = useState(''); // 'google' | 'osm'
+  const [showManualLocation, setShowManualLocation] = useState(false);
+  const [manualLat, setManualLat] = useState('');
+  const [manualLng, setManualLng] = useState('');
   const specialties = [
     'all',
     'doctor',
@@ -24,24 +26,29 @@ const NearbyDoctors = () => {
 
   // Fetch from both sources in parallel and use the first non-empty successful result
   const fetchNearbyFirstAvailable = async (lat, lng) => {
-    const tasks = [
-      (async () => {
+    const tasks = [];
+
+    // Only add Google Maps task if API key is available
+    if (GOOGLE_MAPS_API_KEY) {
+      tasks.push((async () => {
         try {
           const g = await fetchNearbyDoctorsClient(lat, lng);
           return { source: 'google', data: g };
         } catch (e) {
           return { source: 'google', error: e };
         }
-      })(),
-      (async () => {
-        try {
-          const o = await fetchNearbyDoctorsOverpass(lat, lng);
-          return { source: 'osm', data: o };
-        } catch (e) {
-          return { source: 'osm', error: e };
-        }
-      })()
-    ];
+      })());
+    }
+
+    // Always include OpenStreetMap as fallback
+    tasks.push((async () => {
+      try {
+        const o = await fetchNearbyDoctorsOverpass(lat, lng);
+        return { source: 'osm', data: o };
+      } catch (e) {
+        return { source: 'osm', error: e };
+      }
+    })());
 
     const results = await Promise.all(tasks);
     // Prefer first non-empty
@@ -149,7 +156,7 @@ const NearbyDoctors = () => {
             type: ['doctor'],
             keyword: 'doctor clinic hospital health'
           },
-          (results, status, pagination) => {
+          (results, status) => {
             if (finished) return;
             finished = true;
             clearTimeout(timeoutId);
@@ -179,7 +186,7 @@ const NearbyDoctors = () => {
                 textService.textSearch({
                   location: locationObj,
                   radius: Math.max(500, Math.min(50000, Math.round(radiusKm * 1000))),
-                  query: 'doctor OR hospital OR clinic',
+                  query: `doctor OR hospital OR clinic near ${lat},${lng}`,
                 }, (res2, status2) => {
                   if (status2 === google.maps.places.PlacesServiceStatus.OK && res2) {
                     const mapped = res2.map((place) => ({
@@ -245,14 +252,36 @@ const NearbyDoctors = () => {
     if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
     const data = await res.json();
     const elements = data.elements || [];
-    const mapped = elements.map((el, idx) => {
+    const mapped = elements.map((el) => {
       const name = el.tags?.name || 'Healthcare Facility';
       const types = [];
       if (el.tags?.amenity) types.push(el.tags.amenity);
       if (el.tags?.healthcare) types.push(el.tags.healthcare);
       const center = el.type === 'node' ? { lat: el.lat, lon: el.lon } : (el.center || {});
       const d = center.lat && center.lon ? calculateDistance(lat, lng, center.lat, center.lon) : 0;
-      const address = [el.tags?.addr_housenumber, el.tags?.addr_street, el.tags?.addr_city].filter(Boolean).join(', ');
+
+      // Build a better address from available OSM data
+      let address = [el.tags?.addr_housenumber, el.tags?.addr_street, el.tags?.addr_city].filter(Boolean).join(', ');
+
+      // If no structured address, try to build one from other available data
+      if (!address) {
+        const addressParts = [];
+        if (el.tags?.addr_housename) addressParts.push(el.tags.addr_housename);
+        if (el.tags?.addr_place) addressParts.push(el.tags.addr_place);
+        if (el.tags?.addr_suburb) addressParts.push(el.tags.addr_suburb);
+        if (el.tags?.addr_city) addressParts.push(el.tags.addr_city);
+        if (el.tags?.addr_state) addressParts.push(el.tags.addr_state);
+        if (el.tags?.addr_postcode) addressParts.push(el.tags.addr_postcode);
+        if (el.tags?.addr_country) addressParts.push(el.tags.addr_country);
+
+        address = addressParts.join(', ');
+
+        // If still no address, provide coordinates as fallback
+        if (!address && center.lat && center.lon) {
+          address = `${center.lat.toFixed(4)}, ${center.lon.toFixed(4)}`;
+        }
+      }
+
       return {
         id: `${el.type}-${el.id}`,
         name,
@@ -299,15 +328,39 @@ const NearbyDoctors = () => {
     return '🏥';
   };
 
+  // Function to format address in proper alphabetical format
+  const formatAddress = (address) => {
+    if (!address || address === 'Address unavailable') return address;
+
+    // Handle coordinate format (latitude, longitude)
+    if (/^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(address.trim())) {
+      return address; // Keep coordinates as-is
+    }
+
+    // Split address into parts and capitalize each word
+    return address
+      .split(',')
+      .map(part => {
+        // Capitalize each word in the part
+        return part.trim().split(' ')
+          .map(word => {
+            // Don't capitalize small words unless they're at the start
+            const smallWords = ['and', 'or', 'but', 'nor', 'yet', 'so', 'for', 'the', 'a', 'an', 'in', 'on', 'at', 'to', 'of', 'with', 'by'];
+            if (smallWords.includes(word.toLowerCase())) {
+              return word.toLowerCase();
+            }
+            // Capitalize first letter, rest lowercase
+            return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+          })
+          .join(' ');
+      })
+      .join(', ');
+  };
+
+
   const getCurrentLocation = () => {
     setLoading(true);
     setError('');
-
-    if (!GOOGLE_MAPS_API_KEY) {
-      setError('Google Maps API key is not configured. Please add your API key to the .env file.');
-      setLoading(false);
-      return;
-    }
 
     if (!navigator.geolocation) {
       setError('Geolocation is not supported by this browser');
@@ -336,7 +389,7 @@ const NearbyDoctors = () => {
           setLoading(false);
         }
       },
-      (error) => {
+      () => {
         // Browser geolocation failed or denied — try IP-based approx location
         (async () => {
           try {
@@ -348,7 +401,7 @@ const NearbyDoctors = () => {
             if (!result.data || result.data.length === 0) {
               setError('No results found nearby. Try increasing radius or changing location.');
             }
-          } catch (e) {
+          } catch {
             setError('Unable to retrieve your location. Please enable location services.');
           } finally {
             setLoading(false);
@@ -361,6 +414,34 @@ const NearbyDoctors = () => {
         maximumAge: 60000
       }
     );
+  };
+
+  const useManualLocation = async () => {
+    const lat = parseFloat(manualLat);
+    const lng = parseFloat(manualLng);
+
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      setError('Please enter valid latitude (-90 to 90) and longitude (-180 to 180).');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    setLocation({ lat, lng });
+
+    try {
+      const result = await fetchNearbyFirstAvailable(lat, lng);
+      setDataSource(result.source);
+      setDoctors(result.data || []);
+      if (!result.data || result.data.length === 0) {
+        setError('No results found nearby. Try increasing radius or changing location.');
+      }
+      setShowManualLocation(false);
+    } catch {
+      setError('Failed to fetch doctors for manual location.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Manual location entry removed
@@ -423,9 +504,26 @@ const NearbyDoctors = () => {
     window.open(`tel:${phone}`, '_self');
   };
 
-  const getDirections = (address) => {
-    const encodedAddress = encodeURIComponent(address);
-    window.open(`https://maps.google.com/maps?q=${encodedAddress}`, '_blank');
+  const getDirections = (doctor) => {
+    // Use coordinates for more accurate directions if available
+    if (location && doctor.address !== 'Address unavailable') {
+      // Use Google Maps directions with origin and destination coordinates
+      const origin = `${location.lat},${location.lng}`;
+      const destination = encodeURIComponent(formatAddress(doctor.address));
+      window.open(`https://maps.google.com/maps/dir/${origin}/${destination}`, '_blank');
+    } else if (location) {
+      // Fallback: use coordinates for both origin and approximate destination
+      const origin = `${location.lat},${location.lng}`;
+      // Try to estimate destination coordinates from the doctor's data if available
+      // For now, just search for the doctor name near the user's location
+      const query = encodeURIComponent(`${doctor.name} near me`);
+      window.open(`https://maps.google.com/maps?q=${query}&ll=${origin}`, '_blank');
+    } else {
+      // Final fallback: just search for the address or doctor name
+      const query = doctor.address !== 'Address unavailable' ? formatAddress(doctor.address) : doctor.name;
+      const encodedQuery = encodeURIComponent(query);
+      window.open(`https://maps.google.com/maps?q=${encodedQuery}`, '_blank');
+    }
   };
 
   return (
@@ -450,18 +548,113 @@ const NearbyDoctors = () => {
             <p style={{ color: '#00d4ff', marginBottom: '15px' }}>
               We need your location to find nearby doctors
             </p>
-            <button
-              onClick={getCurrentLocation}
-              disabled={loading}
-              className="gradient-button"
-              style={{
-                fontSize: '16px',
-                padding: '12px 24px',
-                opacity: loading ? 0.7 : 1
-              }}
-            >
-              {loading ? 'Getting Location...' : 'Enable Location'}
-            </button>
+            {!GOOGLE_MAPS_API_KEY && (
+              <div style={{
+                background: 'rgba(255, 193, 7, 0.1)',
+                border: '1px solid rgba(255, 193, 7, 0.3)',
+                borderRadius: '8px',
+                padding: '10px',
+                marginBottom: '15px'
+              }}>
+                <p style={{ color: '#f59e0b', margin: 0, fontSize: '14px' }}>
+                  ⚠️ Google Maps API key not configured. Using OpenStreetMap fallback. For better results, add your API key to .env file (see GOOGLE_MAPS_SETUP.md).
+                </p>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '15px' }}>
+              <button
+                onClick={getCurrentLocation}
+                disabled={loading}
+                className="gradient-button"
+                style={{
+                  fontSize: '16px',
+                  padding: '12px 24px',
+                  opacity: loading ? 0.7 : 1
+                }}
+              >
+                {loading ? 'Getting Location...' : 'Enable Location'}
+              </button>
+              <button
+                onClick={() => setShowManualLocation(!showManualLocation)}
+                style={{
+                  fontSize: '16px',
+                  padding: '12px 24px',
+                  background: 'transparent',
+                  border: '1px solid rgba(0, 212, 255, 0.3)',
+                  color: '#00d4ff',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                {showManualLocation ? 'Hide Manual' : 'Enter Location'}
+              </button>
+            </div>
+            {showManualLocation && (
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '8px',
+                padding: '15px',
+                marginTop: '15px'
+              }}>
+                <p style={{ color: '#94a3b8', marginBottom: '10px', textAlign: 'center' }}>
+                  Enter your coordinates manually
+                </p>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'center' }}>
+                  <div>
+                    <label style={{ color: '#94a3b8', fontSize: '14px' }}>Latitude:</label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={manualLat}
+                      onChange={(e) => setManualLat(e.target.value)}
+                      placeholder="e.g. 28.6139"
+                      style={{
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        color: '#ffffff',
+                        width: '120px'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ color: '#94a3b8', fontSize: '14px' }}>Longitude:</label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={manualLng}
+                      onChange={(e) => setManualLng(e.target.value)}
+                      placeholder="e.g. 77.2090"
+                      style={{
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        color: '#ffffff',
+                        width: '120px'
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={useManualLocation}
+                    disabled={loading}
+                    style={{
+                      padding: '8px 16px',
+                      background: '#10b981',
+                      border: 'none',
+                      color: 'white',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      opacity: loading ? 0.7 : 1
+                    }}
+                  >
+                    Use Location
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -685,7 +878,7 @@ const NearbyDoctors = () => {
                           {renderStars(doctor.rating)}
                         </div>
                         <div style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '5px' }}>
-                          📍 {doctor.address}
+                          📍 {formatAddress(doctor.address)}
                         </div>
                         <div style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '5px' }}>
                           📞 {doctor.phone}
@@ -693,6 +886,11 @@ const NearbyDoctors = () => {
                         <div style={{ color: '#10b981', fontSize: '0.9rem' }}>
                           🕒 {doctor.availability}
                         </div>
+                        {location && (
+                          <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                            🔍 Search location: {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
+                          </div>
+                        )}
                       </div>
 
                       {/* Action Buttons */}
@@ -713,7 +911,7 @@ const NearbyDoctors = () => {
                           📞 Call Now
                         </button>
                         <button
-                          onClick={() => getDirections(doctor.address)}
+                          onClick={() => getDirections(doctor)}
                           style={{
                             background: 'transparent',
                             border: '1px solid rgba(255, 255, 255, 0.2)',
@@ -766,7 +964,7 @@ const NearbyDoctors = () => {
           <p style={{ color: '#94a3b8', marginBottom: '12px' }}>Try increasing the search radius or change location.</p>
           <div style={{ display: 'inline-flex', gap: '8px' }}>
             <button onClick={() => setRadiusKm(Math.min(50, radiusKm * 2))} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}>Increase radius</button>
-            <button onClick={() => { setLocation(null); setManualAddress(''); setShowManual(true); }} style={{ background: '#10b981', border: 'none', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}>Change location</button>
+            <button onClick={() => { setLocation(null); setShowManualLocation(true); }} style={{ background: '#10b981', border: 'none', color: '#fff', padding: '8px 12px', borderRadius: '8px' }}>Change location</button>
           </div>
         </div>
       )}

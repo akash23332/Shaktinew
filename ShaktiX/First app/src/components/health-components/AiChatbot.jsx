@@ -67,6 +67,61 @@ const AiChatbot = () => {
     return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
   };
 
+  // Function to determine if a question is medical-related
+  const isMedicalQuestion = (text) => {
+    const medicalKeywords = [
+      'symptom', 'pain', 'headache', 'fever', 'cough', 'nausea', 'vomit', 'diarrhea',
+      'medicine', 'drug', 'prescription', 'treatment', 'diagnosis', 'disease', 'illness',
+      'health', 'medical', 'doctor', 'hospital', 'clinic', 'blood', 'pressure', 'heart',
+      'lung', 'stomach', 'head', 'throat', 'ear', 'eye', 'skin', 'bone', 'muscle',
+      'infection', 'virus', 'bacteria', 'cancer', 'diabetes', 'asthma', 'allergy',
+      'vaccine', 'surgery', 'emergency', 'ambulance', 'pharmacy', 'pill', 'tablet',
+      'capsule', 'injection', 'therapy', 'exercise', 'diet', 'nutrition', 'weight',
+      'bmi', 'calories', 'protein', 'vitamin', 'mineral', 'sleep', 'stress', 'mental'
+    ];
+    const lowerText = text.toLowerCase();
+    return medicalKeywords.some(keyword => lowerText.includes(keyword));
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
+
+  // Client-side medical safety filter to avoid prescriptions/dosages
+  const enforceMedicalSafety = (text) => {
+    try {
+      if (!text || typeof text !== 'string') return { text: '', flagged: false };
+
+      const patterns = [
+        /\b(?:prescribe|prescribed|prescription|start|take|use|begin|administer)\b[^\n]*\b(?:mg|mcg|ml|milligram|microgram|tablet|tab|capsule|cap|dose|dosage|units?)\b/gi,
+        /\b\d+\s*(?:mg|mcg|ml|units?)\b/gi,
+        /\b(?:amoxicillin|azithromycin|ibuprofen|paracetamol|acetaminophen|metformin|lisinopril|atorvastatin|omeprazole)\b[^\n]*(?:\d+\s*(?:mg|mcg|ml))?/gi
+      ];
+
+      let flagged = false;
+      for (const re of patterns) {
+        if (re.test(text)) { flagged = true; break; }
+      }
+
+      if (!flagged) return { text, flagged: false };
+
+      const safeMessage =
+        "I can share general health information and self-care tips, but I can’t provide prescriptions, dosages, or medication instructions.\n\n" +
+        "General guidance you may find helpful:\n" +
+        "- Stay hydrated, rest adequately, and monitor symptoms.\n" +
+        "- Supportive measures: balanced nutrition, good sleep, stress management.\n" +
+        "- Seek medical care for red‑flags like severe chest pain, trouble breathing, confusion, persistent high fever, or rapid worsening.\n\n" +
+        "This is general information only—please consult a licensed clinician for personalized advice.";
+
+      return { text: safeMessage, flagged: true };
+    } catch (_) {
+      return { text, flagged: false };
+    }
+  };
+
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
@@ -82,35 +137,55 @@ const AiChatbot = () => {
     setIsTyping(true);
 
     try {
-      // Always use local fallback responses now
-      const aiResponseText = getFallbackResponse(userMessage.text);
+      // Use the general AI chatbot API for all questions
+      const response = await fetch('http://localhost:3001/api/chatbot/general', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage.text,
+          context: messages.slice(-5).map(msg => ({
+            role: msg.isUser ? 'user' : 'assistant',
+            content: msg.text
+          }))
+        })
+      });
 
+      if (response.ok) {
+        const data = await response.json();
+        const safe = enforceMedicalSafety(data.response);
+        const aiResponse = {
+          id: (Date.now() + 1).toString(),
+          text: safe.text,
+          isUser: false,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      } else {
+        // Fallback to local response if API fails
+        const aiResponseText = getFallbackResponse(userMessage.text);
+        const aiResponse = {
+          id: (Date.now() + 1).toString(),
+          text: aiResponseText,
+          isUser: false,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, aiResponse]);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      // Fallback response on error
+      const aiResponseText = "I'm sorry, I'm experiencing technical difficulties. Please try again later.";
       const aiResponse = {
         id: (Date.now() + 1).toString(),
         text: aiResponseText,
         isUser: false,
         timestamp: new Date()
       };
-
       setMessages(prev => [...prev, aiResponse]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      const errorResponse = {
-        id: (Date.now() + 1).toString(),
-        text: "I'm sorry, I encountered an error. Please try again or consult a healthcare professional for medical concerns.",
-        isUser: false,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorResponse]);
     } finally {
       setIsTyping(false);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
     }
   };
 

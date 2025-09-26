@@ -168,3 +168,183 @@
 .vc-chip-add { display: flex; gap: 8px; align-items: center; }
 .vc-chip-add .vc-input { flex: 1; }
 .vc-help { color: #94a3b8; font-size: 0.8rem; margin-top: 6px; }
+
+/* Advanced AI Features Styles */
+.vc-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.vc-tab {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 8px 16px;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+.vc-tab.active {
+  background: rgba(0, 212, 255, 0.2);
+  color: #00d4ff;
+  border-bottom: 2px solid #00d4ff;
+}
+
+.vc-transcription {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #e2e8f0;
+}
+
+.vc-llm-response {
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.vc-ai-analysis {
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.vc-voice-analysis {
+  background: rgba(138,43,226,0.1);
+  border: 1px solid rgba(138,43,226,0.3);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.vc-btn-danger {
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  background-size: 200% 200%;
+}
+.vc-btn-danger:hover {
+  background: linear-gradient(90deg, #c82333, #a02622);
+}
+
+/* Real-Time Dashboard Styles */
+.vc-realtime-dashboard {
+  position: relative;
+  overflow: hidden;
+}
+
+.vc-realtime-dashboard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #22c55e, #16a34a, #15803d);
+  animation: realtime-pulse 2s ease-in-out infinite;
+}
+
+@keyframes realtime-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Status indicators */
+.vc-status-online {
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.vc-status-busy {
+  color: #f59e0b;
+  font-weight: bold;
+}
+
+.vc-status-offline {
+  color: #ef4444;
+  font-weight: bold;
+}
+
+/* Real-time metrics cards */
+.vc-metric-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 8px;
+  margin: 4px 0;
+  border-left: 3px solid #22c55e;
+  transition: all 0.3s ease;
+}
+
+.vc-metric-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Live updates feed */
+.vc-updates-feed {
+  max-height: 150px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 197, 94, 0.3) rgba(255, 255, 255, 0.1);
+}
+
+.vc-updates-feed::-webkit-scrollbar {
+  width: 6px;
+}
+
+.vc-updates-feed::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.vc-updates-feed::-webkit-scrollbar-thumb {
+  background: rgba(34, 197, 94, 0.3);
+  border-radius: 3px;
+}
+
+.vc-update-item {
+  padding: 6px 8px;
+  margin: 4px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  font-size: 11px;
+  border-left: 2px solid;
+  animation: slideIn 0.3s ease-out;
+}
+
+.vc-update-item[data-type="doctor_status_update"] {
+  border-left-color: #3b82f6;
+}
+
+.vc-update-item[data-type="patient_vitals_update"] {
+  border-left-color: #ef4444;
+}
+
+.vc-update-item[data-type="medicine_price_update"] {
+  border-left-color: #f59e0b;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive adjustments for AI features */
+@media (max-width: 768px) {
+  .vc-tabs { flex-wrap: wrap; }
+  .vc-tab { flex: 1; min-width: 80px; }
+  .vc-actions { flex-direction: column; }
+  .vc-actions .vc-btn { width: 100%; }
+  .vc-realtime-dashboard {
+    font-size: 14px;
+  }
+  .vc-metric-card {
+    padding: 6px;
+  }
+}

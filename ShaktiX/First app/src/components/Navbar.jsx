@@ -44,7 +44,7 @@ const Navigation = () => {
             </button>
             <input
               type="text"
-              placeholder="Search"
+              placeholder={t('nav.search')}
               aria-label="Search"
               className={`nav-search-input ${isSearchOpen ? 'open' : 'collapsed'}`}
               onKeyDown={(e) => {
@@ -96,13 +96,13 @@ const Navigation = () => {
       </div>
 
       {/* Mobile Navigation */}
-      <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`}>
-        <ul className="mobile-nav-links">
-          <li><a href="/" className="mobile-nav-link">Home</a></li>
-          <li><a href="/services" className="mobile-nav-link">Services</a></li>
-          <li><a href="#about" className="mobile-nav-link">About</a></li>
-          <li><a href="/contact" className="mobile-nav-link">Contact</a></li>
-          <li><LanguageSwitcher /></li>
+    <div className={`mobile-menu ${isMenuOpen ? 'open' : ''}`}>
+      <ul className="mobile-nav-links">
+        <li><a href="/" className="mobile-nav-link">{t('nav.home')}</a></li>
+        <li><a href="/services" className="mobile-nav-link">{t('nav.services')}</a></li>
+        <li><a href="#about" className="mobile-nav-link">{t('nav.about')}</a></li>
+        <li><a href="/contact" className="mobile-nav-link">{t('nav.contact')}</a></li>
+        <li><LanguageSwitcher /></li>
           {user ? (
             <li><span className="mobile-nav-link" aria-label="User">{user.name}</span></li>
           ) : (
@@ -117,7 +117,7 @@ const Navigation = () => {
             </button>
             <input
               type="text"
-              placeholder="Search"
+              placeholder={t('nav.search')}
               aria-label="Search"
               className={`mobile-search-input ${isSearchOpen ? 'open' : 'collapsed'}`}
               onKeyDown={(e) => {

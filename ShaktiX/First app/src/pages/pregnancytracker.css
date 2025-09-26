@@ -1,0 +1,923 @@
+/* Pregnancy Tracker Base Styles */
+
+.pregnancy-tracker {
+  --primary: #6f5bff;
+  --accent: #ff7eb3;
+  --bg: #0b1020;
+  --bg-soft: #121a33;
+  --text: #eef2ff;
+  --muted: #9aa4c7;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Header */
+.header-section {
+  position: relative;
+  min-height: 22rem;
+  background: linear-gradient(120deg, rgba(111,91,255,0.25), rgba(255,126,179,0.15));
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  justify-items: start;
+}
+.header-section .overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(111,91,255,0.25), transparent 60%),
+              radial-gradient(1200px 600px at 90% 20%, rgba(255,126,179,0.2), transparent 60%);
+  filter: blur(20px);
+  pointer-events: none;
+}
+.header-content {
+  position: relative;
+  text-align: left;
+  padding: 2rem 1rem;
+  max-width: 900px;
+}
+.header-content h1 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1.1;
+  margin: 0 0 0.75rem;
+}
+.header-content p {
+  color: var(--muted);
+  margin: 0 0 1.25rem;
+}
+.start-tracking-btn {
+  appearance: none;
+  border: 0;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(111,91,255,0.35);
+}
+.start-tracking-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
+.start-tracking-btn:active { transform: translateY(0); }
+
+/* Main content */
+.main-content {
+  padding: 2rem 1rem 3rem;
+  max-width: 1520px !important;
+  margin: 0 auto;
+}
+ .card + .card { margin-top: 1rem; }
+
+/* Due date calculator */
+.due-date-calculator h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem;
+}
+.due-date-calculator p { color: var(--muted); margin: 0 0 1rem; }
+.due-date-calculator label { display: block; margin: 0.75rem 0 0.25rem; }
+.due-date-calculator input[type="date"],
+.due-date-calculator input[type="text"],
+.due-date-calculator input[type="number"] {
+  width: 100%;
+  background: #0f1730;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.6rem;
+}
+
+/* Grid helpers */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+@media (min-width: 900px) {
+  .grid-2 { grid-template-columns: 2fr 1fr; }
+}
+
+/* Progress and stats */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+.stat {
+  background: #0f1730;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 0.75rem;
+  padding: 0.9rem;
+  text-align: center;
+}
+.stat .big { font-size: 1.25rem; font-weight: 700; color: var(--primary); }
+.stat .label { font-size: 0.8rem; color: var(--muted); }
+
+/* Symptom log */
+.symptom-controls {
+  display: grid;
+  grid-template-columns: 1fr 90px 44px;
+  gap: 0.5rem;
+}
+.add-btn {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  border: 0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.symptom-list { max-height: 220px; overflow: auto; margin-top: 0.5rem; display: grid; gap: 0.5rem; }
+.symptom-item {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #0f1730; border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 0.6rem; padding: 0.6rem 0.75rem;
+}
+.symptom-meta { color: var(--muted); font-size: 0.8rem; }
+.delete-btn { background: transparent; border: 0; color: #ff98a6; cursor: pointer; font-weight: 700; }
+
+/* Reminders */
+.reminder {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #0f1730; border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 0.6rem; padding: 0.6rem 0.75rem; cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.reminder + .reminder { margin-top: 0.5rem; }
+.reminder.done { background: rgba(52, 211, 153, 0.15); border-color: rgba(52, 211, 153, 0.3); color: #34d399; }
+
+/* Utility */
+.muted { color: var(--muted); }
+.center { text-align: center; }
+
+/* Pregnancy Tracker Styles */
+
+:root {
+    --bg: #0b1020;
+    --card: #131a2b;
+    --card-2: #101726;
+    --primary: #6ea8fe;
+    --primary-600: #4c86e8;
+    --accent: #e879f9;
+    --text: #e6e8ef;
+    --text-dim: #a9b1c7;
+    --success: #22c55e;
+    --warning: #f59e0b;
+  }
+  
+  /* Desktop layout to match reference: two columns with right column tall symptom card */
+  @media (min-width: 1024px) {
+    .main-content {
+      grid-template-columns: 420px 1fr;
+      align-items: start;
+    }
+  
+    /* Left column stacking */
+    .due-date-calculator,
+    .progress-card-advanced,
+    .weekly-growth,
+    .daily-reminders {
+      grid-column: 1;
+    }
+  
+    /* Let right column cards (Progress, Symptom Log) auto-flow into column 2 */
+    .progress-card-advanced,
+    .symptom-log { grid-column: 2; }
+  
+    /* Left column: compact cards */
+    .due-date-calculator { min-height: 220px; }
+    .daily-reminders { min-height: 380px; }
+  }
+  
+  .pregnancy-tracker {
+    min-height: 100dvh;
+    padding: 0px;
+    background: radial-gradient(1200px 1200px at -10% -10%, rgba(110, 168, 254, 0.12), transparent 60%),
+      radial-gradient(900px 900px at 110% -10%, rgba(232, 121, 249, 0.12), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  
+  .tracker-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  
+  .tracker-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    margin: 0 0 6px;
+  }
+  
+  .tracker-header p {
+    color: var(--text-dim);
+    margin: 0;
+  }
+  
+  .tracker-container {
+    max-width: 980px;
+    margin: 0 auto;
+    display: grid;
+    gap: 20px;
+  }
+  
+  /* Input Section */
+  .input-section {
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+    display: grid;
+    gap: 10px;
+  }
+  
+  .input-section label {
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  
+  .date-input {
+    background: #0c1323;
+    color: var(--text);
+    border: 1px solid rgba(110, 168, 254, 0.2);
+    border-radius: 10px;
+    padding: 10px 12px;
+    outline: none;
+  }
+  
+  .date-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(110, 168, 254, 0.25);
+  }
+  
+  /* Progress Section */
+  .progress-section {
+    display: grid;
+  }
+  
+  .progress-card {
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  
+  .progress-card h2 {
+    margin: 0 0 12px;
+  }
+  
+  .progress-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  
+  .stat {
+    background: #0c1323;
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .stat-value {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1.1;
+  }
+  
+  .stat-label {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  
+  .progress-bar-container {
+    height: 12px;
+    margin: 14px 0 6px;
+    background: #0c1323;
+    border-radius: 999px;
+    border: 1px solid rgba(110, 168, 254, 0.2);
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+    box-shadow: 0 0 16px rgba(110, 168, 254, 0.35);
+  }
+  
+  .progress-percentage {
+    text-align: right;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+  
+  /* Advanced progress card metrics */
+  .progress-card-advanced {
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  
+  .progress-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 12px 0 6px;
+  }
+  
+  .metric {
+    background: #0c1323;
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  
+  .metric-label {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  
+  .metric-value {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--primary);
+  }
+  
+  /* Baby Info */
+  .baby-info {
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  
+  .baby-size {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #0c1323;
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 12px;
+    width: fit-content;
+  }
+  
+  .baby-emoji {
+    font-size: 1.6rem;
+  }
+  
+  .baby-text {
+    color: var(--text);
+  }
+  
+  /* Weekly growth layout */
+  .weekly-growth .growth-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  
+  .growth-item {
+    background: #0c1323;
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  
+  .growth-label {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  
+  .growth-value {
+    font-weight: 700;
+    color: var(--text);
+  }
+  
+  /* Pregnancy Info */
+  .pregnancy-info .info-card {
+    margin-top: 10px;
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  
+  .pregnancy-info h3 { margin: 0; }
+  .info-card h4 { margin: 0 0 6px; }
+  .info-card p { margin: 0 0 10px; color: var(--text-dim); }
+  
+  .symptoms h5 { margin: 0 0 6px; }
+  .symptoms ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--text);
+  }
+  
+  /* Countdown */
+  .countdown .countdown-card {
+    margin-top: 10px;
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  
+  .countdown-card p { margin: 6px 0; }
+  
+  /* Welcome */
+  .welcome-message {
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  
+  .welcome-message h3 { margin: 0 0 8px; }
+  .welcome-message p { margin: 0 0 12px; color: var(--text-dim); }
+  
+  .tips h4 { margin: 0 0 8px; }
+  .tips ul { margin: 0; padding-left: 18px; }
+  
+  /* Responsive */
+  @media (min-width: 860px) {
+    .tracker-container {
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: start;
+    }
+  
+    .progress-section,
+    .baby-info,
+    .pregnancy-info,
+    .countdown,
+    .welcome-message {
+      grid-column: 1 / -1;
+    }
+  }
+  .header-section {
+    position: relative;
+    background: linear-gradient(90deg, #0b224b 0%, #0b224bcc 60%, #0b224b00),
+                url('../../assets/pregnancy-hero.jpg') center/cover no-repeat;
+    padding: 4rem 2rem 5rem;
+    color: white;
+    max-width: 100vw;
+    overflow: hidden;
+  }
+  
+  .header-section .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(9,26,52,0.9) 0%, rgba(9,26,52,0.6) 100%);
+    z-index: 0;
+  }
+  
+  .header-content {
+    position: relative;
+    max-width: 480px;
+    z-index: 1;
+  }
+  
+  .header-content h1 {
+    font-weight: 700;
+    font-size: 2.8rem;
+    margin: 0 0 1rem;
+    line-height: 1.2;
+  }
+  
+  .header-content p {
+    font-weight: 400;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin-bottom: 2rem;
+  }
+  
+  .start-tracking-btn {
+    background-color: #00aaff;
+    color: #fff;
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.8rem 2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .start-tracking-btn:hover {
+    background-color: #008ecc;
+  }
+  
+  /* Main content container */
+  .main-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.8rem;
+    padding: 2rem 3rem 4rem;
+    background-color: #05102a;
+    flex-grow: 1;
+  }
+  
+  /* Card styles */
+  .card {
+    background-color: #10203f;
+    border-radius: 10px;
+    padding: 1.8rem 1.8rem 2.2rem;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+    display: flex;
+    flex-direction: column;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+  
+  .card h3 {
+    font-weight: 600;
+    font-size: 1.3rem;
+    margin: 0 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  
+  .card h3 i {
+    font-size: 1.35rem;
+    color: #00aaff;
+  }
+  
+  .card p {
+    font-weight: 400;
+    line-height: 1.35;
+    margin-bottom: 1rem;
+    color: #a9b1d1;
+  }
+  
+  .card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 30px rgb(0 0 0 / 0.36);
+  }
+  
+  /* ---- Due Date Calculator ---- */
+  .due-date-calculator label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.88rem;
+    margin-bottom: 1rem;
+    color: #a9b1d1;
+  }
+  
+  .due-date-calculator input[type=date] {
+    margin-top: 6px;
+    padding: 0.5rem 0.8rem;
+    background-color: #091c34;
+    border: 1px solid #0e3b70;
+    border-radius: 6px;
+    color: #e3eaf9;
+    font-size: 1rem;
+    font-weight: 500;
+    outline-offset: 2px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .due-date-calculator input[type=date]:focus {
+    border-color: #00aaff;
+  }
+  
+  /* Shared control transitions and focus-visible */
+  .due-date-calculator input[type=date],
+  .symptom-entry input[type=text],
+  .symptom-entry input[type=number] {
+    transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+  }
+  
+  .due-date-calculator input[type=date]:focus-visible,
+  .symptom-entry input[type=text]:focus-visible,
+  .symptom-entry input[type=number]:focus-visible,
+  .start-tracking-btn:focus-visible,
+  .complete-btn:focus-visible,
+  .symptom-entry button:focus-visible {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(110, 168, 254, 0.35);
+  }
+  
+  .start-tracking-btn { transition: transform .15s ease, box-shadow .15s ease; }
+  .start-tracking-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,170,255,.25); }
+  
+  .due-date-result {
+    font-weight: 500;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    color: #7ef2a1;
+  }
+  
+  /* ---- Daily Symptom Log ---- */
+  .symptom-entry {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .symptom-entry input[type=text] {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    background-color: #091c34;
+    border: 1px solid #0e3b70;
+    color: #e8edf9;
+    font-size: 1rem;
+  }
+  
+  .symptom-entry input[type=text]:focus {
+    border-color: #00aaff;
+    outline-offset: 2px;
+  }
+  
+  .symptom-entry input[type=number] {
+    width: 4rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #0e3b70;
+    background-color: #091c34;
+    color: #e8edf9;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    outline-offset: 2px;
+  }
+  
+  .symptom-entry input[type=number]:focus {
+    border-color: #00aaff;
+  }
+  
+  .symptom-entry button {
+    background-color: #00aaff;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.4rem;
+    cursor: pointer;
+    width: 3.2rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .symptom-entry button:hover {
+    background-color: #008ecc;
+  }
+  
+  .complete-btn { transition: transform .15s ease, background-color .2s ease; }
+  .complete-btn:hover { transform: translateY(-1px); }
+  
+  .symptom-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+  
+  .symptom-list li {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    border-bottom: 1px solid #0f2a5c;
+    padding: 0.4rem 0;
+    font-size: 0.9rem;
+  }
+  
+  .symptom-text {
+    color: #d0dbf9;
+    font-weight: 500;
+  }
+  
+  .symptom-date {
+    color: #7ea4e3;
+    font-style: italic;
+  }
+  
+  .symptom-severity {
+    color: #7ef2a1;
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  
+  /* ---- Daily Reminders ---- */
+  .daily-reminders .reminder-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .daily-reminders .reminder-list li {
+    display: grid;
+    grid-template-columns: 1.2rem 1fr 4.5rem 7rem;
+    align-items: center;
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+    color: #a8b5d1;
+    cursor: default;
+    transition: background-color .18s ease, color .18s ease;
+    border-radius: 8px;
+  }
+  
+  .daily-reminders .reminder-list li:hover {
+    background-color: rgba(110,168,254,0.06);
+  }
+  
+  .reminder-icon i {
+    font-size: 0.8rem;
+    color: #00aaff;
+  }
+  
+  .reminder-task {
+    font-weight: 500;
+  }
+  
+  .reminder-time {
+    font-weight: 400;
+    color: #7a97cb;
+    text-align: center;
+  }
+  
+  .complete-btn {
+    font-weight: 600;
+    font-size: 0.9rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #39d27f;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    text-align: right;
+  }
+  
+  .complete-btn:hover {
+    background-color: rgba(57, 210, 127, 0.15);
+  }
+  
+  .daily-reminders .reminder-list li.done {
+    color: #39d27f;
+  }
+  
+  .daily-reminders .reminder-list li.done .reminder-icon i {
+    color: #39d27f;
+    font-weight: 700;
+  }
+  
+  /* Hydration glass progress (animated) */
+  .hydration-glass {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0 14px;
+  }
+  
+  /* Container to show hydration and nutrition side by side */
+  .reminder-glasses {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .nutrition-glass { display: flex; align-items: center; gap: 12px; }
+  .nutrition-glass .glass { position: relative; width: 48px; height: 72px; border: 2px solid rgba(110,168,254,0.35); border-radius: 8px 8px 6px 6px; background: linear-gradient(180deg,#0b152a,#081023); overflow: hidden; box-shadow: inset 0 0 12px rgba(110,168,254,0.12); }
+  .nutrition-glass .water { position: absolute; left: 0; right: 0; bottom: 0; height: 0%; background: linear-gradient(180deg,#7ef29a 0%, #22c55e 100%); transition: height 700ms cubic-bezier(.2,.8,.2,1); animation: slosh 3.2s ease-in-out infinite; transform-origin: top; opacity: .95; }
+  .nutrition-glass .water::before, .nutrition-glass .water::after { content:""; position:absolute; left:-30%; width:160%; height:120%; top:-10%; background: radial-gradient(60% 80% at 50% 30%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 60%); opacity:.32; border-radius: 45% 55% 40% 60%/55% 45% 55% 45%; animation: wave 6s linear infinite; }
+  .nutrition-glass .water::after { animation-duration: 9s; opacity:.22; top:-18%; }
+  .nutrition-glass .shine { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0.18), transparent 40%); mix-blend-mode: screen; pointer-events: none; }
+  .nutrition-glass .glass-meta { display: flex; flex-direction: column; }
+  .nutrition-glass .glass-percent { font-weight: 800; color: #22c55e; line-height: 1; }
+  .nutrition-glass .glass-label { color: var(--text-dim); font-size: 0.85rem; }
+  
+  .hydration-glass .glass {
+    position: relative;
+    width: 48px;
+    height: 72px;
+    border: 2px solid rgba(110, 168, 254, 0.35);
+    border-radius: 8px 8px 6px 6px;
+    background: linear-gradient(180deg, #0b152a, #081023);
+    overflow: hidden;
+    box-shadow: inset 0 0 12px rgba(110, 168, 254, 0.12);
+  }
+  
+  .hydration-glass .water {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 0%;
+    background: linear-gradient(180deg, #3bcaff 0%, #0ea5e9 100%);
+    transition: height 700ms cubic-bezier(.2,.8,.2,1);
+    animation: slosh 3.2s ease-in-out infinite;
+    transform-origin: top;
+    opacity: 0.95;
+  }
+  
+  /* Wave layers inside water */
+  .hydration-glass .water::before,
+  .hydration-glass .water::after {
+    content: "";
+    position: absolute;
+    left: -30%;
+    width: 160%;
+    height: 120%;
+    top: -10%;
+    background: radial-gradient(60% 80% at 50% 30%, rgba(255,255,255,.25) 0%, rgba(255,255,255,0) 60%);
+    opacity: .35;
+    border-radius: 45% 55% 40% 60%/55% 45% 55% 45%;
+    animation: wave 6s linear infinite;
+  }
+  
+  .hydration-glass .water::after {
+    animation-duration: 9s;
+    opacity: .25;
+    top: -18%;
+  }
+  
+  .hydration-glass .shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0.18), transparent 40%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+  
+  @keyframes slosh {
+    0% { transform: translateY(0) skewY(0deg); }
+    50% { transform: translateY(-2px) skewY(-1deg); }
+    100% { transform: translateY(0) skewY(0deg); }
+  }
+  
+  @keyframes wave {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-20%); }
+  }
+  
+  /* Subtle hover to make the cards feel alive */
+  .hydration-glass .glass:hover .shine,
+  .nutrition-glass .glass:hover .shine {
+    opacity: 1;
+  }
+  .hydration-glass .glass,
+  .nutrition-glass .glass {
+    transition: transform 200ms ease;
+  }
+  .hydration-glass .glass:hover,
+  .nutrition-glass .glass:hover { transform: translateY(-1px); }
+  
+  .hydration-glass .glass-meta {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .hydration-glass .glass-percent {
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+  }
+  
+  .hydration-glass .glass-label {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+  
+  /* Trimester timeline */
+  .trimester-timeline {
+    position: relative;
+    height: 8px;
+    background: #0c1323;
+    border: 1px solid rgba(110, 168, 254, 0.12);
+    border-radius: 999px;
+    margin: 12px 0 10px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    overflow: hidden;
+  }
+  .trimester-timeline .segment { background: transparent; }
+  .trimester-timeline .segment.active { background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); opacity: .35; }
+  .trimester-timeline .indicator {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background: var(--primary);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(110,168,254,.2);
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }

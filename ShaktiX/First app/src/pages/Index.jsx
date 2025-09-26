@@ -36,28 +36,27 @@ const Index = () => {
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>
                 </svg>
               </div>
-              <h3 className="service-title">Health: Empowering Women's Health</h3>
+              <h3 className="service-title">{t('index.healthTitle')}</h3>
               <ul className="service-features">
                 <li>
-                  <h4>Blockchain Health Wallet</h4>
-                  <p>Own and securely share medical records across clinics and devices.</p>
+                  <h4>{t('index.blockchainWallet')}</h4>
+                  <p>{t('index.blockchainDesc')}</p>
                 </li>
                 <li>
-                  <h4>AI Tele-clinic</h4>
-                  <p>24/7 triage and guidance tailored to women's health needs.</p>
+                  <h4>{t('index.aiTeleclinic')}</h4>
+                  <p>{t('index.aiTeleclinicDesc')}</p>
                 </li>
                 <li>
-                  <h4>IoT Monitoring</h4>
-                  <p>Continuous insights via wearables to detect risks early.</p>
+                  <h4>{t('index.iotMonitoring')}</h4>
+                  <p>{t('index.iotDesc')}</p>
                 </li>
               </ul>
               <button className="more-btn" type="button" onClick={() => toggleService("health")}>
-                {serviceOpen.health ? "Hide details" : "Learn more"}
+                {serviceOpen.health ? t('index.hideDetails') : t('index.learnMore')}
               </button>
               <div className={`card-more ${serviceOpen.health ? "open" : ""}`}>
                 <p>
-                  ShaktiX Health blends secure blockchain records with 24/7 AI triage and
-                  proactive wearable insights so you stay in control of your well-being.
+                  {t('index.healthMore')}
                 </p>
               </div>
             </div>
@@ -70,28 +69,27 @@ const Index = () => {
                   <path d="M9 12l2 2 4-4"/>
                 </svg>
               </div>
-              <h3 className="service-title">Safety: Ensuring Personal Security</h3>
+              <h3 className="service-title">{t('index.safetyTitle')}</h3>
               <ul className="service-features">
                 <li>
-                  <h4>AI SafeRoute</h4>
-                  <p>Navigate the safest paths using real-time risk signals.</p>
+                  <h4>{t('index.aiSaferoute')}</h4>
+                  <p>{t('index.saferouteDesc')}</p>
                 </li>
                 <li>
-                  <h4>Smart SOS</h4>
-                  <p>Instant alerts to trusted contacts and responders with location.</p>
+                  <h4>{t('index.smartSos')}</h4>
+                  <p>{t('index.sosDesc')}</p>
                 </li>
                 <li>
-                  <h4>Smart Ring SOS</h4>
-                  <p>Discrete hardware trigger when your hands are full or at risk.</p>
+                  <h4>{t('index.smartRingSos')}</h4>
+                  <p>{t('index.ringDesc')}</p>
                 </li>
               </ul>
               <button className="more-btn" type="button" onClick={() => toggleService("safety")}>
-                {serviceOpen.safety ? "Hide details" : "Learn more"}
+                {serviceOpen.safety ? t('index.hideDetails') : t('index.learnMore')}
               </button>
               <div className={`card-more ${serviceOpen.safety ? "open" : ""}`}>
                 <p>
-                  Navigate confidently with real-time route intelligence and rapid, discreet
-                  SOS options that notify trusted contacts and responders instantly.
+                  {t('index.safetyMore')}
                 </p>
               </div>
             </div>
@@ -105,28 +103,27 @@ const Index = () => {
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
               </div>
-              <h3 className="service-title">Cybersecurity: Protecting Digital Dignity</h3>
+              <h3 className="service-title">{t('index.cyberTitle')}</h3>
               <ul className="service-features">
                 <li>
-                  <h4>VoiceShield AI</h4>
-                  <p>Authenticate genuine voices and block spoofed calls.</p>
+                  <h4>{t('index.voiceshield')}</h4>
+                  <p>{t('index.voiceDesc')}</p>
                 </li>
                 <li>
-                  <h4>Deepfake Spotter</h4>
-                  <p>Detect manipulated media with explainable AI signals.</p>
+                  <h4>{t('index.deepfake')}</h4>
+                  <p>{t('index.deepfakeDesc')}</p>
                 </li>
                 <li>
-                  <h4>Blockchain Evidence Locker</h4>
-                  <p>Timestamp and preserve proof to protect your rights.</p>
+                  <h4>{t('index.evidenceLocker')}</h4>
+                  <p>{t('index.evidenceDesc')}</p>
                 </li>
               </ul>
               <button className="more-btn" type="button" onClick={() => toggleService("cyber")}>
-                {serviceOpen.cyber ? "Hide details" : "Learn more"}
+                {serviceOpen.cyber ? t('index.hideDetails') : t('index.learnMore')}
               </button>
               <div className={`card-more ${serviceOpen.cyber ? "open" : ""}`}>
                 <p>
-                  Protect identity and reputation with advanced voice verification, deepfake
-                  detection, and immutable evidence preservation.
+                  {t('index.cyberMore')}
                 </p>
               </div>
             </div>

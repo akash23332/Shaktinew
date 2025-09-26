@@ -6,6 +6,8 @@ import nodemailer from 'nodemailer';
 import twilio from 'twilio';
 import multer from 'multer';
 import { HfInference } from '@huggingface/inference';
+import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import sharp from 'sharp';
 import fs from 'fs-extra';
 import path from 'path';
@@ -1995,6 +1997,851 @@ app.post('/api/symptoms/diagnose', async (req, res) => {
   } catch (error) {
     console.error('Diagnosis error:', error);
     res.status(500).json({ error: 'Failed to get diagnosis' });
+  }
+});
+
+// Advanced AI APIs
+
+// Initialize OpenAI client
+let openaiClient = null;
+try {
+  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  if (OPENAI_API_KEY) {
+    openaiClient = new OpenAI({
+      apiKey: OPENAI_API_KEY,
+    });
+    console.log('OpenAI client initialized successfully');
+  } else {
+    console.log('OpenAI not configured - set OPENAI_API_KEY for chatbot');
+  }
+} catch (error) {
+  console.log('OpenAI initialization failed:', error.message);
+}
+
+// Initialize Google Gemini client
+let geminiClient = null;
+try {
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  if (GEMINI_API_KEY) {
+    geminiClient = new GoogleGenerativeAI(GEMINI_API_KEY);
+    console.log('Google Gemini client initialized successfully');
+  } else {
+    console.log('Gemini not configured - set GEMINI_API_KEY for chatbot (alternative to OpenAI)');
+  }
+} catch (error) {
+  console.log('Gemini initialization failed:', error.message);
+}
+
+// General AI Chatbot API (OpenAI or Gemini)
+app.post('/api/chatbot/general', async (req, res) => {
+  try {
+    const { message, context } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    if (!openaiClient && !geminiClient) {
+      return res.status(500).json({ error: 'No AI API configured (OpenAI or Gemini required)' });
+    }
+
+    // Build conversation history
+    const systemPrompt = `You are a helpful and knowledgeable AI assistant that can answer questions on any topic including health, technology, general knowledge, and more.
+
+MEDICAL SAFETY RULES (when discussing health topics):
+1. NEVER suggest, recommend, or prescribe any specific medicines, drugs, or medications
+2. NEVER provide dosage information for any medications
+3. NEVER advise on treatment plans or therapies
+4. For medical questions, focus on general health education, symptom awareness, and when to seek professional medical help
+5. Always emphasize that you are not a substitute for professional medical advice
+6. If asked about specific medical conditions, direct users to consult healthcare professionals
+7. Provide evidence-based general information about health topics
+8. Promote healthy lifestyle choices and preventive care
+
+GENERAL ASSISTANCE:
+- Be helpful, accurate, and informative
+- Provide comprehensive but concise responses
+- Be empathetic and supportive
+- Answer questions on any topic the user asks about
+- Maintain professional boundaries especially for medical topics`;
+
+    let response = '';
+    let model = '';
+
+    // Try OpenAI first
+    if (openaiClient) {
+      try {
+        const messages = [
+          { role: 'system', content: systemPrompt }
+        ];
+
+        // Add conversation context if provided
+        if (context && Array.isArray(context)) {
+          context.forEach(msg => {
+            if (msg.role && msg.content) {
+              messages.push({
+                role: msg.role === 'user' ? 'user' : 'assistant',
+                content: msg.content
+              });
+            }
+          });
+        }
+
+        // Add current user message
+        messages.push({ role: 'user', content: message });
+
+        const completion = await openaiClient.chat.completions.create({
+          model: 'gpt-4',
+          messages: messages,
+          max_tokens: 500,
+          temperature: 0.7,
+          presence_penalty: 0.1,
+          frequency_penalty: 0.1
+        });
+
+        response = completion.choices[0]?.message?.content || 'I apologize, but I\'m unable to provide a response at this time.';
+        model = 'gpt-4';
+
+      } catch (openaiError) {
+        console.error('OpenAI error:', openaiError);
+        // Fall back to Gemini if OpenAI fails
+        if (geminiClient) {
+          console.log('Falling back to Gemini...');
+        } else {
+          throw openaiError;
+        }
+      }
+    }
+
+    // Try Gemini if OpenAI not available or failed
+    if (!response && geminiClient) {
+      try {
+        const model = geminiClient.getGenerativeModel({ model: 'gemini-pro' });
+
+        let prompt = systemPrompt + '\n\n';
+
+        // Add conversation context
+        if (context && Array.isArray(context)) {
+          context.forEach(msg => {
+            if (msg.role && msg.content) {
+              prompt += `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n`;
+            }
+          });
+        }
+
+        prompt += `User: ${message}\nAssistant:`;
+
+        const result = await model.generateContent(prompt);
+        response = result.response.text() || 'I apologize, but I\'m unable to provide a response at this time.';
+        model = 'gemini-pro';
+
+      } catch (geminiError) {
+        console.error('Gemini error:', geminiError);
+        throw geminiError;
+      }
+    }
+
+    res.json({
+      response,
+      timestamp: new Date().toISOString(),
+      model,
+      disclaimer: 'For health-related questions, this is general information only. Always consult healthcare professionals for medical advice.'
+    });
+
+  } catch (error) {
+    console.error('General chatbot error:', error);
+    res.status(500).json({
+      error: 'Failed to get response from chatbot',
+      response: 'I apologize, but I\'m experiencing technical difficulties. Please try again later.'
+    });
+  }
+});
+
+// Disabled Chatbot APIs (shadow existing handlers below)
+app.post('/api/llm/general-assist', async (req, res) => {
+  return res.status(410).json({
+    success: false,
+    error: 'Chatbot API disabled',
+    message: 'The general-assist chatbot endpoint has been disabled.'
+  });
+});
+
+// Disabled Chatbot APIs (shadow existing handler for medical-assist)
+app.post('/api/llm/medical-assist', async (req, res) => {
+  return res.status(410).json({
+    success: false,
+    error: 'Chatbot API disabled',
+    message: 'The medical-assist chatbot endpoint has been disabled.'
+  });
+});
+
+// Computer Vision for Medical Images
+app.post('/api/vision/medical-analyze', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    const imagePath = req.file.path;
+    console.log('Analyzing medical image:', req.file.filename);
+
+    let analysis = {};
+
+    if (hfClient) {
+      try {
+        // Process image for medical analysis
+        const processedImageBuffer = await sharp(imagePath)
+          .resize(224, 224, { fit: 'cover' })
+          .jpeg({ quality: 85 })
+          .toBuffer();
+
+        // Use multiple vision models for comprehensive analysis
+        const [classification, objects] = await Promise.all([
+          hfClient.imageClassification({
+            data: processedImageBuffer,
+            model: 'google/vit-base-patch16-224'
+          }).catch(() => null),
+          hfClient.objectDetection({
+            data: processedImageBuffer,
+            model: 'facebook/detr-resnet-50'
+          }).catch(() => null)
+        ]);
+
+        analysis = {
+          classification: classification || [],
+          objects: objects || [],
+          medical: analyzeMedicalImageContent(classification, objects),
+          confidence: 0.85,
+          timestamp: new Date().toISOString()
+        };
+
+      } catch (visionError) {
+        console.error('Vision analysis failed:', visionError);
+        analysis = generateFallbackImageAnalysis();
+      }
+    } else {
+      analysis = generateFallbackImageAnalysis();
+    }
+
+    // Clean up uploaded file
+    setTimeout(() => {
+      fs.remove(imagePath).catch(err => console.error('Failed to cleanup image:', err));
+    }, 5000);
+
+    res.json({
+      success: true,
+      analysis,
+      message: 'Medical image analysis completed'
+    });
+
+  } catch (error) {
+    console.error('Medical image analysis error:', error);
+
+    if (req.file) {
+      fs.remove(req.file.path).catch(err => console.error('Failed to cleanup on error:', err));
+    }
+
+    res.status(500).json({
+      error: 'Failed to analyze medical image',
+      analysis: generateFallbackImageAnalysis()
+    });
+  }
+});
+
+// AI Document Generation
+app.post('/api/documents/generate', async (req, res) => {
+  try {
+    const { type, data, ai } = req.body;
+
+    if (!type || !data) {
+      return res.status(400).json({ error: 'Document type and data are required' });
+    }
+
+    let document = {};
+
+    switch (type) {
+      case 'consultation-summary':
+        document = await generateConsultationSummary(data, ai);
+        break;
+      case 'treatment-plan':
+        document = await generateTreatmentPlan(data, ai);
+        break;
+      case 'follow-up-reminder':
+        document = await generateFollowUpReminder(data, ai);
+        break;
+      case 'medical-report':
+        document = await generateMedicalReport(data, ai);
+        break;
+      default:
+        return res.status(400).json({ error: 'Unsupported document type' });
+    }
+
+    res.json({
+      success: true,
+      document,
+      type,
+      generated: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Document generation error:', error);
+    res.status(500).json({ error: 'Failed to generate document' });
+  }
+});
+
+// Helper Functions for Advanced AI
+
+function generateLLMSuggestions(medicalContext) {
+  const suggestions = [];
+
+  if (medicalContext?.symptoms?.length > 0) {
+    suggestions.push("Consider ordering relevant diagnostic tests based on symptoms");
+    suggestions.push("Review patient's medication history for contraindications");
+  }
+
+  if (medicalContext?.conditions?.length > 0) {
+    suggestions.push("Check for red flag symptoms that require immediate attention");
+    suggestions.push("Consider patient education materials for the diagnosed condition");
+  }
+
+  if (!suggestions.length) {
+    suggestions.push("Ask about symptom duration and severity");
+    suggestions.push("Inquire about relevant medical history");
+    suggestions.push("Consider preventive care recommendations");
+  }
+
+  return suggestions;
+}
+
+function generateFallbackGeneralResponse(query) {
+  // Simple rule-based responses for common questions
+  const lowerQuery = query.toLowerCase();
+
+  if (lowerQuery.includes('hello') || lowerQuery.includes('hi') || lowerQuery.includes('hey')) {
+    return {
+      assistance: "Hello! I'm your AI assistant. I can help you with questions on various topics including health, technology, general knowledge, and more. What would you like to know?",
+      timestamp: new Date().toISOString(),
+      model: 'Fallback-General-Assistant',
+      type: 'general'
+    };
+  }
+
+  if (lowerQuery.includes('weather')) {
+    return {
+      assistance: "I don't have access to current weather data, but I can suggest checking a weather app or website for the most accurate and up-to-date information.",
+      timestamp: new Date().toISOString(),
+      model: 'Fallback-General-Assistant',
+      type: 'general'
+    };
+  }
+
+  if (lowerQuery.includes('time') || lowerQuery.includes('date')) {
+    return {
+      assistance: `The current date and time is ${new Date().toLocaleString()}. For more precise time information, you might want to check your device's clock or a time service.`,
+      timestamp: new Date().toISOString(),
+      model: 'Fallback-General-Assistant',
+      type: 'general'
+    };
+  }
+
+  if (lowerQuery.includes('how are you') || lowerQuery.includes('how do you do')) {
+    return {
+      assistance: "I'm doing well, thank you for asking! I'm here to help you with any questions you might have. What can I assist you with today?",
+      timestamp: new Date().toISOString(),
+      model: 'Fallback-General-Assistant',
+      type: 'general'
+    };
+  }
+
+  // Default general response
+  return {
+    assistance: "That's an interesting question! While I don't have specific information on that topic right now, I can help you find general information or suggest where to look for more details. Could you provide more context or ask about a different topic?",
+    timestamp: new Date().toISOString(),
+    model: 'Fallback-General-Assistant',
+    type: 'general'
+  };
+}
+
+function generateFallbackLLMResponse(query, medicalContext) {
+  return {
+    assistance: "Based on the consultation context, I recommend a thorough assessment of the patient's symptoms and medical history. Consider evidence-based guidelines for diagnosis and treatment. Always prioritize patient safety and clinical judgment.",
+    suggestions: [
+      "Document all findings systematically",
+      "Consider appropriate follow-up based on clinical assessment",
+      "Review treatment options with patient preferences in mind"
+    ],
+    timestamp: new Date().toISOString(),
+    model: 'Fallback-Medical-Assistant'
+  };
+}
+
+function analyzeMedicalImageContent(classification, objects) {
+  // Analyze classification and objects for medical relevance
+  const medicalFindings = {
+    bodyParts: [],
+    abnormalities: [],
+    medicalDevices: [],
+    skinConditions: [],
+    recommendations: []
+  };
+
+  // Simple rule-based analysis
+  if (classification) {
+    classification.forEach(item => {
+      const label = item.label?.toLowerCase() || '';
+      if (label.includes('skin') || label.includes('rash') || label.includes('lesion')) {
+        medicalFindings.skinConditions.push(item.label);
+      }
+      if (label.includes('x-ray') || label.includes('scan') || label.includes('mri')) {
+        medicalFindings.medicalDevices.push(item.label);
+      }
+    });
+  }
+
+  if (objects) {
+    objects.forEach(obj => {
+      const label = obj.label?.toLowerCase() || '';
+      if (['arm', 'leg', 'hand', 'foot', 'head', 'chest', 'abdomen'].includes(label)) {
+        medicalFindings.bodyParts.push(obj.label);
+      }
+    });
+  }
+
+  // Generate recommendations
+  if (medicalFindings.skinConditions.length > 0) {
+    medicalFindings.recommendations.push("Consider dermatological evaluation for skin findings");
+  }
+
+  if (medicalFindings.bodyParts.length > 0) {
+    medicalFindings.recommendations.push("Document anatomical location of findings");
+  }
+
+  return medicalFindings;
+}
+
+function generateFallbackImageAnalysis() {
+  return {
+    classification: [],
+    objects: [],
+    medical: {
+      bodyParts: [],
+      abnormalities: [],
+      medicalDevices: [],
+      skinConditions: [],
+      recommendations: ["Image analysis requires specialized medical imaging software"]
+    },
+    confidence: 0.5,
+    timestamp: new Date().toISOString(),
+    note: "Fallback analysis - professional medical image interpretation recommended"
+  };
+}
+
+async function generateConsultationSummary(data, ai) {
+  return {
+    title: "AI-Generated Consultation Summary",
+    patient: data.patientName || "Patient",
+    date: new Date().toISOString().split('T')[0],
+    summary: `Consultation conducted with AI assistance. Key findings include ${ai?.analysis?.symptoms?.length || 0} symptoms identified and ${ai?.analysis?.conditions?.length || 0} potential conditions assessed.`,
+    aiInsights: ai?.analysis || {},
+    recommendations: [
+      "Follow up based on clinical findings",
+      "Monitor symptoms as discussed",
+      "Adhere to prescribed treatment plan"
+    ],
+    generatedBy: "ShaktiX AI Medical Assistant"
+  };
+}
+
+async function generateTreatmentPlan(data, ai) {
+  return {
+    title: "AI-Assisted Treatment Plan",
+    patient: data.patientName || "Patient",
+    conditions: ai?.analysis?.conditions || [],
+    medications: ai?.analysis?.medications || [],
+    lifestyle: ai?.analysis?.advice || [],
+    followUp: "Schedule follow-up appointment in 1-2 weeks",
+    monitoring: "Monitor symptoms and treatment response",
+    generatedBy: "ShaktiX AI Medical Assistant"
+  };
+}
+
+async function generateFollowUpReminder(data, ai) {
+  return {
+    title: "Follow-Up Care Reminder",
+    patient: data.patientName || "Patient",
+    nextAppointment: "Schedule within 1-2 weeks",
+    monitoring: "Track symptoms and medication effectiveness",
+    concerns: "Contact healthcare provider if symptoms worsen",
+    generatedBy: "ShaktiX AI Medical Assistant"
+  };
+}
+
+async function generateMedicalReport(data, ai) {
+  return {
+    title: "Comprehensive Medical Report",
+    patient: data.patientName || "Patient",
+    date: new Date().toISOString(),
+    sections: {
+      history: "Patient history reviewed with AI assistance",
+      examination: "Virtual consultation conducted",
+      assessment: ai?.analysis?.conditions || [],
+      plan: ai?.analysis?.advice || [],
+      ai: ai || {}
+    },
+    generatedBy: "ShaktiX AI Medical Assistant"
+  };
+}
+
+// Real-Time Data APIs
+
+// Real-time doctor availability
+app.get('/api/realtime/doctors/availability', async (req, res) => {
+  try {
+    const { specialty, location } = req.query;
+
+    // Simulate real-time doctor availability from external API
+    // In production, this would connect to a real healthcare provider database
+    const realTimeDoctors = [
+      {
+        id: 'rt_001',
+        name: 'Dr. Sarah Johnson',
+        specialty: specialty || 'General Medicine',
+        location: location || 'New York',
+        availability: 'Available now',
+        waitTime: 0,
+        rating: 4.8,
+        experience: '15 years',
+        languages: ['English', 'Spanish'],
+        price: { consultation: 85, followUp: 65 },
+        realTimeStatus: 'online',
+        lastUpdated: new Date().toISOString(),
+        nextAvailable: null
+      },
+      {
+        id: 'rt_002',
+        name: 'Dr. Michael Chen',
+        specialty: specialty || 'Cardiology',
+        location: location || 'Los Angeles',
+        availability: 'Available in 15 minutes',
+        waitTime: 15,
+        rating: 4.9,
+        experience: '12 years',
+        languages: ['English', 'Mandarin'],
+        price: { consultation: 120, followUp: 90 },
+        realTimeStatus: 'busy',
+        lastUpdated: new Date().toISOString(),
+        nextAvailable: new Date(Date.now() + 15 * 60000).toISOString()
+      },
+      {
+        id: 'rt_003',
+        name: 'Dr. Emily Rodriguez',
+        specialty: specialty || 'Dermatology',
+        location: location || 'Chicago',
+        availability: 'Next available tomorrow',
+        waitTime: 1440, // 24 hours in minutes
+        rating: 4.7,
+        experience: '10 years',
+        languages: ['English', 'Spanish'],
+        price: { consultation: 95, followUp: 75 },
+        realTimeStatus: 'offline',
+        lastUpdated: new Date().toISOString(),
+        nextAvailable: new Date(Date.now() + 24 * 60 * 60000).toISOString()
+      }
+    ];
+
+    // Filter by specialty if provided
+    const filteredDoctors = specialty
+      ? realTimeDoctors.filter(doc => doc.specialty.toLowerCase().includes(specialty.toLowerCase()))
+      : realTimeDoctors;
+
+    res.json({
+      success: true,
+      doctors: filteredDoctors,
+      totalAvailable: filteredDoctors.filter(doc => doc.realTimeStatus === 'online').length,
+      lastUpdated: new Date().toISOString(),
+      refreshInterval: 30000 // 30 seconds
+    });
+
+  } catch (error) {
+    console.error('Real-time doctor availability error:', error);
+    res.status(500).json({ error: 'Failed to fetch real-time doctor availability' });
+  }
+});
+
+// Real-time patient health metrics
+app.get('/api/realtime/patient/metrics/:patientId', async (req, res) => {
+  try {
+    const { patientId } = req.params;
+
+    // Simulate real-time health metrics from wearables/IoT devices
+    // In production, this would connect to Apple Health, Google Fit, or medical devices
+    const realTimeMetrics = {
+      patientId,
+      timestamp: new Date().toISOString(),
+      vitals: {
+        heartRate: {
+          current: 72 + Math.floor(Math.random() * 20), // 72-92 BPM
+          average: 75,
+          status: 'normal',
+          trend: 'stable',
+          lastUpdated: new Date().toISOString()
+        },
+        bloodPressure: {
+          systolic: 120 + Math.floor(Math.random() * 20), // 120-140
+          diastolic: 80 + Math.floor(Math.random() * 10), // 80-90
+          status: 'normal',
+          trend: 'stable',
+          lastUpdated: new Date().toISOString()
+        },
+        oxygenSaturation: {
+          current: 98 + Math.floor(Math.random() * 3), // 98-100%
+          status: 'excellent',
+          trend: 'stable',
+          lastUpdated: new Date().toISOString()
+        },
+        temperature: {
+          current: 98.6 + (Math.random() - 0.5), // 98.1-99.1°F
+          status: 'normal',
+          trend: 'stable',
+          lastUpdated: new Date().toISOString()
+        }
+      },
+      activity: {
+        stepsToday: Math.floor(Math.random() * 5000) + 3000,
+        activeMinutes: Math.floor(Math.random() * 60) + 30,
+        caloriesBurned: Math.floor(Math.random() * 500) + 800,
+        sleepHours: 7 + Math.random() * 2,
+        lastUpdated: new Date().toISOString()
+      },
+      alerts: [
+        // Generate random alerts
+        Math.random() > 0.8 ? {
+          type: 'warning',
+          message: 'Irregular heartbeat detected',
+          timestamp: new Date().toISOString(),
+          severity: 'medium'
+        } : null
+      ].filter(Boolean),
+      connectedDevices: [
+        { type: 'smartwatch', brand: 'Apple Watch', status: 'connected' },
+        { type: 'blood_pressure_monitor', brand: 'Omron', status: 'connected' },
+        { type: 'scale', brand: 'Withings', status: 'disconnected' }
+      ]
+    };
+
+    res.json({
+      success: true,
+      metrics: realTimeMetrics,
+      refreshInterval: 10000 // 10 seconds for health metrics
+    });
+
+  } catch (error) {
+    console.error('Real-time patient metrics error:', error);
+    res.status(500).json({ error: 'Failed to fetch real-time patient metrics' });
+  }
+});
+
+// Real-time medicine database
+app.get('/api/realtime/medicines/search', async (req, res) => {
+  try {
+    const { query, category } = req.query;
+
+    // Simulate real-time medicine database with current pricing and availability
+    // In production, this would connect to pharmacy databases or government APIs
+    const medicines = [
+      {
+        id: 'med_001',
+        name: 'Paracetamol 500mg',
+        genericName: 'Acetaminophen',
+        category: 'Pain Relief',
+        dosage: '500mg',
+        forms: ['Tablet', 'Syrup', 'Injection'],
+        price: {
+          tablet: { current: 5.99, previous: 6.49, currency: 'USD' },
+          syrup: { current: 8.99, previous: 9.49, currency: 'USD' }
+        },
+        availability: 'In Stock',
+        manufacturer: 'Generic Pharma',
+        sideEffects: ['Nausea', 'Rash', 'Liver damage (rare)'],
+        interactions: ['Warfarin', 'Alcohol'],
+        lastUpdated: new Date().toISOString(),
+        stockLevel: 'High'
+      },
+      {
+        id: 'med_002',
+        name: 'Amoxicillin 500mg',
+        genericName: 'Amoxicillin',
+        category: 'Antibiotic',
+        dosage: '500mg',
+        forms: ['Capsule', 'Tablet'],
+        price: {
+          capsule: { current: 12.99, previous: 13.99, currency: 'USD' },
+          tablet: { current: 11.99, previous: 12.99, currency: 'USD' }
+        },
+        availability: 'Limited Stock',
+        manufacturer: 'Antibiotic Labs',
+        sideEffects: ['Diarrhea', 'Nausea', 'Allergic reaction'],
+        interactions: ['Oral contraceptives'],
+        lastUpdated: new Date().toISOString(),
+        stockLevel: 'Medium'
+      },
+      {
+        id: 'med_003',
+        name: 'Lisinopril 10mg',
+        genericName: 'Lisinopril',
+        category: 'Blood Pressure',
+        dosage: '10mg',
+        forms: ['Tablet'],
+        price: {
+          tablet: { current: 15.99, previous: 16.99, currency: 'USD' }
+        },
+        availability: 'In Stock',
+        manufacturer: 'CardioMed',
+        sideEffects: ['Cough', 'Dizziness', 'Headache'],
+        interactions: ['Potassium supplements', 'NSAIDs'],
+        lastUpdated: new Date().toISOString(),
+        stockLevel: 'High'
+      }
+    ];
+
+    // Filter medicines based on query
+    let filteredMedicines = medicines;
+    if (query) {
+      filteredMedicines = medicines.filter(med =>
+        med.name.toLowerCase().includes(query.toLowerCase()) ||
+        med.genericName.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+    if (category) {
+      filteredMedicines = filteredMedicines.filter(med =>
+        med.category.toLowerCase().includes(category.toLowerCase())
+      );
+    }
+
+    res.json({
+      success: true,
+      medicines: filteredMedicines,
+      totalResults: filteredMedicines.length,
+      lastUpdated: new Date().toISOString(),
+      refreshInterval: 3600000 // 1 hour for medicine data
+    });
+
+  } catch (error) {
+    console.error('Real-time medicine search error:', error);
+    res.status(500).json({ error: 'Failed to search medicines' });
+  }
+});
+
+// Real-time consultation dashboard data
+app.get('/api/realtime/consultation/dashboard/:appointmentId', async (req, res) => {
+  try {
+    const { appointmentId } = req.params;
+
+    // Simulate real-time consultation dashboard data
+    const dashboardData = {
+      appointmentId,
+      status: 'active',
+      duration: Math.floor(Math.random() * 30) + 10, // 10-40 minutes
+      participants: {
+        doctor: {
+          id: 'doc_001',
+          name: 'Dr. Sarah Johnson',
+          status: 'active',
+          connectionQuality: 'excellent'
+        },
+        patient: {
+          id: 'pat_001',
+          name: 'John Doe',
+          status: 'active',
+          connectionQuality: 'good'
+        }
+      },
+      ai: {
+        transcriptionActive: true,
+        analysisComplete: Math.random() > 0.5,
+        suggestionsCount: Math.floor(Math.random() * 5) + 1,
+        lastActivity: new Date().toISOString()
+      },
+      vitals: {
+        patientHeartRate: 72 + Math.floor(Math.random() * 20),
+        patientBP: '120/80',
+        lastUpdated: new Date().toISOString()
+      },
+      alerts: [
+        Math.random() > 0.9 ? {
+          type: 'system',
+          message: 'Connection quality improved',
+          timestamp: new Date().toISOString(),
+          severity: 'info'
+        } : null,
+        Math.random() > 0.95 ? {
+          type: 'medical',
+          message: 'Patient vitals stable',
+          timestamp: new Date().toISOString(),
+          severity: 'success'
+        } : null
+      ].filter(Boolean),
+      timestamp: new Date().toISOString(),
+      refreshInterval: 5000 // 5 seconds for dashboard
+    };
+
+    res.json({
+      success: true,
+      dashboard: dashboardData
+    });
+
+  } catch (error) {
+    console.error('Real-time dashboard error:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard data' });
+  }
+});
+
+// WebSocket-like real-time updates endpoint
+app.get('/api/realtime/updates', async (req, res) => {
+  try {
+    // Simulate real-time updates stream
+    // In production, this would use WebSockets or Server-Sent Events
+    const updates = {
+      timestamp: new Date().toISOString(),
+      events: [
+        {
+          type: 'doctor_status_update',
+          data: {
+            doctorId: 'doc_001',
+            status: 'available',
+            lastSeen: new Date().toISOString()
+          }
+        },
+        {
+          type: 'patient_vitals_update',
+          data: {
+            patientId: 'pat_001',
+            heartRate: 75,
+            bloodPressure: '118/78',
+            timestamp: new Date().toISOString()
+          }
+        },
+        {
+          type: 'medicine_price_update',
+          data: {
+            medicineId: 'med_001',
+            oldPrice: 6.49,
+            newPrice: 5.99,
+            timestamp: new Date().toISOString()
+          }
+        }
+      ].filter(() => Math.random() > 0.7), // Random events
+      nextPoll: new Date(Date.now() + 10000).toISOString() // Poll again in 10 seconds
+    };
+
+    res.json({
+      success: true,
+      updates
+    });
+
+  } catch (error) {
+    console.error('Real-time updates error:', error);
+    res.status(500).json({ error: 'Failed to fetch real-time updates' });
   }
 });
 
