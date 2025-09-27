@@ -1,0 +1,58 @@
+/* One-Click Report page styles */
+
+.report-page { padding-top: 5rem; }
+
+/* Hero */
+.report-hero {
+  background: radial-gradient(900px 420px at 20% -10%, rgba(0,212,255,0.12), transparent),
+              radial-gradient(800px 360px at 110% 0%, rgba(134,231,255,0.08), transparent),
+              #0b1224;
+  border-bottom: 1px solid rgba(51,65,85,0.5);
+}
+
+.report-hero-content { text-align: center; padding: 2rem 1rem 2.25rem; }
+.report-badge {
+  display: inline-block; padding: 0.25rem 0.6rem; border-radius: 9999px;
+  background: rgba(0,212,255,0.15); border: 1px solid rgba(0,212,255,0.35);
+  color: #86e7ff; font-weight: 800; margin-bottom: 0.6rem;
+}
+.report-title { font-size: 2.4rem; font-weight: 900; margin: 0; }
+.report-title { background: linear-gradient(135deg, #fff, #ffa1b2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.report-subtitle { color: rgba(255,255,255,0.9); max-width: 900px; margin: 0.5rem auto 1rem; }
+
+/* Layout */
+.report-content { padding: 1rem 0 2.5rem; }
+.report-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+
+@media (min-width: 1024px) {
+  .report-grid { grid-template-columns: 1.25fr 0.9fr; }
+}
+
+/* Cards */
+.report-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+  border: 1px solid rgba(51,65,85,0.55);
+  border-radius: 16px;
+  padding: 1rem 1rem 1.1rem;
+  box-shadow: inset 0 0 0 1px rgba(0,212,255,0.06), 0 12px 30px rgba(2, 6, 23, 0.6);
+}
+.card-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; }
+.card-head h2 { margin: 0; font-size: 1.4rem; color: #86e7ff; }
+.card-icon { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(0,212,255,0.18), rgba(0,153,204,0.18)); color: #00d4ff; font-weight: 800; }
+
+/* Form */
+.grid-2 { display: grid; grid-template-columns: 1fr; gap: 0.9rem; }
+@media (min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+.input-with-button { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; }
+.report-textarea { min-height: 140px; padding: 0.75rem 1rem; border-radius: 14px; resize: vertical; }
+
+.evidence-list { list-style: none; padding: 0.5rem 0 0; margin: 0; display: grid; gap: 0.35rem; color: rgba(255,255,255,0.85); }
+.evidence-list li span { color: #94a3b8; }
+
+/* Sidebar */
+.tips-list, .next-steps { margin: 0.25rem 0 0; padding-left: 1.1rem; }
+.tips-list li, .next-steps li { margin: 0.35rem 0; color: rgba(255,255,255,0.88); }
+
+/* Minor spacing harmony with global auth styles */
+.report-card .auth-label { margin-bottom: 0.35rem; display: inline-block; }
+.report-card .profile-actions { margin-top: 0.6rem; display: flex; gap: 0.6rem; }

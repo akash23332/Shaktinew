@@ -1,0 +1,66 @@
+{
+  "evidence-1758712154555": {
+    "id": "evidence-1758712154555",
+    "hash": "6ebd8b4ca27d538083772928f443fe31ecb426cee9457ef26be2709498d4075b",
+    "timestamp": "2025-09-24T11:09:13.194Z",
+    "filename": "Unit 1.pdf",
+    "fileSize": 1423519,
+    "fileType": "application/pdf",
+    "metadata": {
+      "originalName": "Unit 1.pdf",
+      "uploadTime": "2025-09-24T11:09:14.504Z"
+    },
+    "createdAt": "2025-09-24T11:09:14.555Z",
+    "verified": true,
+    "blockchainAnchor": "anchor-1758712154555",
+    "status": "preserved"
+  },
+  "evidence-1758712845316": {
+    "id": "evidence-1758712845316",
+    "hash": "b31bc83d1e08588a0df4723d8c8c34bb8cb48c06746803d6cad8384403333dec",
+    "timestamp": "2025-09-24T11:20:44.970Z",
+    "filename": "2025_IOT(G8)_102_Exp5_6.pdf",
+    "fileSize": 414293,
+    "fileType": "application/pdf",
+    "metadata": {
+      "originalName": "2025_IOT(G8)_102_Exp5_6.pdf",
+      "uploadTime": "2025-09-24T11:20:45.313Z"
+    },
+    "createdAt": "2025-09-24T11:20:45.316Z",
+    "verified": true,
+    "blockchainAnchor": "anchor-1758712845316",
+    "status": "preserved"
+  },
+  "evidence-1758723678236": {
+    "id": "evidence-1758723678236",
+    "hash": "b31bc83d1e08588a0df4723d8c8c34bb8cb48c06746803d6cad8384403333dec",
+    "timestamp": "2025-09-24T14:21:17.125Z",
+    "filename": "2025_IOT(G8)_102_Exp5_6.pdf",
+    "fileSize": 414293,
+    "fileType": "application/pdf",
+    "metadata": {
+      "originalName": "2025_IOT(G8)_102_Exp5_6.pdf",
+      "uploadTime": "2025-09-24T14:21:18.180Z"
+    },
+    "createdAt": "2025-09-24T14:21:18.236Z",
+    "verified": true,
+    "blockchainAnchor": "anchor-1758723678237",
+    "status": "preserved"
+  },
+  "evidence-1758891442506": {
+    "id": "evidence-1758891442506",
+    "hash": "f477167df9bfb68f100495aa5a2ba69e978f76beac3b24ea49524293e0ee48c0",
+    "timestamp": "2025-09-26T12:57:21.650Z",
+    "filename": "8153359-NOW-OR-NEVER-Wallpaper.jpg",
+    "fileSize": 390708,
+    "fileType": "image/jpeg",
+    "metadata": {
+      "originalName": "8153359-NOW-OR-NEVER-Wallpaper.jpg",
+      "uploadTime": "2025-09-26T12:57:22.456Z"
+    },
+    "createdAt": "2025-09-26T12:57:22.506Z",
+    "verified": true,
+    "blockchainAnchor": "anchor-1758891442506",
+    "status": "preserved"
+  }
+}

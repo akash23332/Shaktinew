@@ -1,0 +1,276 @@
+/* Voice Shield styles */
+
+.voice-page { padding-top: 5rem; }
+
+/* Hero */
+.voice-hero {
+  background: radial-gradient(900px 420px at 20% -10%, rgba(0,212,255,0.12), transparent),
+              radial-gradient(800px 360px at 110% 0%, rgba(34,197,94,0.08), transparent),
+              #0b1224;
+  border-bottom: 1px solid rgba(51,65,85,0.5);
+}
+.voice-hero-content { text-align: center; padding: 2rem 1rem 2.25rem; }
+.voice-title { font-size: 2.2rem; font-weight: 900; margin: 0 0 0.5rem; }
+.voice-title { background: linear-gradient(135deg, #ff6b6b, #ffa8a8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.voice-subtitle { color: rgba(255,255,255,0.9); margin-bottom: 1.5rem; }
+
+/* Voice Section */
+.voice-section { padding: 2rem 0 3rem; }
+
+/* Voice Cards */
+.voice-card { 
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); 
+  border: 1px solid rgba(51,65,85,0.55); 
+  border-radius: 16px; 
+  padding: 1.5rem; 
+  margin-bottom: 1.5rem;
+  box-shadow: inset 0 0 0 1px rgba(0,212,255,0.06), 0 12px 30px rgba(2, 6, 23, 0.6); 
+}
+
+.voice-card h2 { 
+  margin: 0 0 1rem; 
+  font-size: 1.5rem; 
+  color: #fff; 
+}
+
+.voice-card p { 
+  color: rgba(255,255,255,0.85); 
+  margin-bottom: 1rem; 
+}
+
+/* Input Controls */
+.input-controls { margin-bottom: 1rem; }
+.file-hint { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 0.5rem 0; }
+.record-controls { margin-top: 1rem; }
+
+/* Audio Preview */
+.audio-preview { margin-top: 1rem; }
+.audio-info { color: rgba(255,255,255,0.9); margin-bottom: 0.75rem; }
+.audio-player { width: 100%; margin-top: 0.5rem; }
+
+/* Status Elements */
+.integrity-status { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.5rem; 
+  margin-top: 1rem; 
+  color: #86efac; 
+  font-size: 0.9rem; 
+}
+.status-check { font-size: 1.1rem; font-weight: 700; }
+
+/* Analysis Results */
+.analysis-results { margin-top: 1rem; }
+
+.result-summary { 
+  background: rgba(255,255,255,0.04); 
+  border: 1px dashed rgba(51,65,85,0.6); 
+  border-radius: 12px; 
+  padding: 1rem; 
+  margin-bottom: 1rem; 
+}
+
+.authenticity-score { 
+  padding: 0.75rem; 
+  border-radius: 8px; 
+  font-weight: 600; 
+  font-size: 1rem; 
+  margin-bottom: 0.75rem; 
+  text-align: center;
+}
+.authenticity-score.cloned { background: rgba(239,68,68,0.15); color: #fca5a5; }
+.authenticity-score.authentic { background: rgba(34,197,94,0.15); color: #86efac; }
+
+.confidence-display, .authenticity-display { 
+  background: rgba(255,255,255,0.04); 
+  padding: 0.5rem; 
+  border-radius: 6px; 
+  margin-bottom: 0.5rem; 
+  font-size: 0.9rem; 
+  color: #e2e8f0; 
+}
+
+/* Detailed Metrics */
+.detailed-metrics { margin-bottom: 1.5rem; }
+.detailed-metrics h4 { 
+  margin: 0 0 0.75rem; 
+  color: #86e7ff; 
+  font-size: 1.1rem; 
+}
+
+.metric-item { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  padding: 0.5rem 0; 
+  border-bottom: 1px solid rgba(51,65,85,0.3); 
+  color: rgba(255,255,255,0.85); 
+  font-size: 0.9rem; 
+}
+
+.metric-item:last-child { border-bottom: none; }
+
+/* Risk Level Display */
+.risk-display {
+  background: rgba(255,255,255,0.04); 
+  padding: 0.5rem; 
+  border-radius: 6px; 
+  margin-bottom: 0.5rem; 
+  font-size: 0.9rem; 
+  color: #e2e8f0; 
+}
+
+.risk-high { color: #fca5a5; font-weight: 600; }
+.risk-medium { color: #fbbf24; font-weight: 600; }
+.risk-low { color: #86efac; font-weight: 600; }
+
+/* Technical Details */
+.technical-details {
+  margin: 1.5rem 0;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(51,65,85,0.4);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.technical-details h4 {
+  margin: 0 0 1rem;
+  color: #86e7ff;
+  font-size: 1rem;
+}
+
+.detail-section {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(51,65,85,0.3);
+}
+
+.detail-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.detail-section strong {
+  color: #e2e8f0;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.detail-section ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: rgba(255,255,255,0.8);
+  font-size: 0.85rem;
+}
+
+.detail-section li {
+  margin-bottom: 0.25rem;
+}
+
+.characteristics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+}
+
+/* Recommendations */
+.recommendations {
+  margin: 1.5rem 0;
+  background: rgba(34,197,94,0.05);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.recommendations h4 {
+  margin: 0 0 0.75rem;
+  color: #86efac;
+  font-size: 1rem;
+}
+
+.recommendations ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: rgba(255,255,255,0.9);
+  font-size: 0.9rem;
+}
+
+.recommendations li {
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+/* Result Actions */
+.result-actions { 
+  display: flex; 
+  gap: 1rem; 
+  flex-wrap: wrap; 
+  margin-top: 1.5rem;
+}
+
+.result-actions .button { 
+  min-width: 140px; 
+  font-size: 0.9rem;
+}
+
+/* Enhanced Analysis Results */
+.analysis-results {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Processing States */
+.voice-card.processing {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0.05));
+}
+
+.voice-card.completed {
+  border-color: rgba(34, 197, 94, 0.5);
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .voice-section .container { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 1.5rem; 
+  }
+  
+  .input-card { grid-column: 1 / -1; }
+  
+  /* Center the result card when it has analysis results */
+  .result-card:has(.analysis-results) {
+    grid-column: 1 / -1;
+    max-width: 800px;
+    margin: 0 auto 1.5rem auto;
+  }
+  
+  .characteristics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .result-actions {
+    flex-direction: column;
+  }
+  
+  .characteristics-grid {
+    grid-template-columns: 1fr;
+  }
+}

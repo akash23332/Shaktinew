@@ -1,0 +1,170 @@
+.vc-container { max-width: 1120px; margin: 0 auto; padding: 20px; }
+.vc-header { text-align: center; margin-bottom: 24px; }
+.vc-title { font-size: 1.75rem; font-weight: 600; color: #ffffff; margin: 0 0 8px; }
+.vc-subtitle { color: #94a3b8; margin: 0; }
+
+.vc-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.vc-card { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 16px; }
+.vc-card h3 { color: #ffffff; margin: 0 0 12px; font-size: 1.1rem; }
+
+.vc-field { display: grid; gap: 6px; margin-bottom: 12px; }
+.vc-label { color: #94a3b8; font-size: 0.9rem; }
+.vc-input, .vc-textarea, .vc-select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(255, 255, 255, 0.05); color: #ffffff; }
+.vc-textarea { min-height: 80px; resize: vertical; }
+
+/* Enhanced select styles (dark theme + custom arrow) */
+.vc-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+  padding-right: 40px; /* room for the arrow */
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.04) inset;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3e%3cpath fill='%23ffffff' d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 18px 18px;
+  cursor: pointer;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease, filter 180ms ease;
+}
+
+.vc-select:hover {
+  filter: brightness(1.05);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.vc-input:focus,
+.vc-textarea:focus,
+.vc-select:focus {
+  outline: none;
+  border-color: rgba(0, 212, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.15);
+}
+
+/* Dark dropdown list (browser support varies; works in Chromium/Firefox) */
+.vc-select option { background-color: #0b1220; color: #e5e7eb; }
+.vc-select optgroup { background-color: #0b1220; color: #a3b3cc; }
+.vc-select option:disabled { color: #6b7280; }
+
+/* Style placeholder option (value="") */
+.vc-select option[value=""] { color: #94a3b8; }
+
+/* Improve overall inputs on hover for consistency */
+.vc-input:hover,
+.vc-textarea:hover {
+  background-color: rgba(255, 255, 255, 0.07);
+}
+
+.vc-btn {
+  background: linear-gradient(90deg, #00d4ff, #00b3e6, #0099cc);
+  background-size: 200% 200%;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 120ms ease, filter 200ms ease, box-shadow 200ms ease;
+  position: relative;
+  overflow: hidden;
+  animation: vc-gradient-shift 4s ease infinite;
+  animation-play-state: paused; /* only animate on hover/focus */
+}
+.vc-btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+.vc-btn:hover,
+.vc-btn:focus-visible { animation-play-state: running; filter: saturate(1.1); }
+.vc-btn:active { transform: translateY(1px) scale(0.99); }
+
+/* Ripple press effect */
+.vc-btn::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 160%;
+  height: 160%;
+  background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 60%);
+  opacity: 0;
+  transition: transform 360ms ease, opacity 360ms ease;
+  pointer-events: none;
+}
+.vc-btn:active::after { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+
+.vc-btn-outline {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  transition: border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease, transform 120ms ease;
+}
+.vc-btn-outline:hover,
+.vc-btn-outline:focus-visible {
+  border-color: rgba(255,255,255,0.35);
+  background-color: rgba(255,255,255,0.06);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.15) inset;
+}
+.vc-btn-outline:active { transform: translateY(1px) scale(0.99); }
+.vc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.vc-video { background: #0f172a; border-radius: 12px; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.vc-badge { display: inline-block; background: #10b981; color: #fff; padding: 4px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+
+.vc-row { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+@media (max-width: 860px) { .vc-row { grid-template-columns: 1fr; } }
+
+/* Keyframes for animated gradient shift */
+@keyframes vc-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Printable white-paper prescription card */
+.rx-paper {
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  font-size: 14px;
+}
+.rx-header { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 12px; }
+.rx-logo { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,153,204,0.15)); }
+.rx-brand { line-height: 1.1; }
+.rx-title { font-weight: 800; letter-spacing: 0.2px; }
+.rx-sub { font-size: 12px; color: #475569; }
+
+.rx-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+.rx-label { font-weight: 700; color: #1f2937; }
+
+.rx-section { margin-top: 10px; }
+.rx-section-title { font-weight: 700; color: #111827; margin-bottom: 6px; }
+.rx-box { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; }
+.rx-list { display: grid; gap: 8px; }
+.rx-med { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; }
+.rx-med-name { font-weight: 700; color: #0f172a; }
+.rx-med-details { color: #475569; font-size: 12px; margin-top: 4px; }
+
+.rx-footer { margin-top: 12px; font-size: 11px; color: #6b7280; text-align: center; }
+
+/* Symptom chips */
+.vc-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.vc-chip {
+  background: rgba(255,255,255,0.06);
+  color: #e5e7eb;
+  border: 1px solid rgba(255,255,255,0.12);
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 80ms ease, box-shadow 160ms ease;
+}
+.vc-chip:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+.vc-chip:active { transform: translateY(1px); }
+.vc-chip.active { background: linear-gradient(90deg, #00d4ff, #0099cc); color: #0b1220; border-color: transparent; box-shadow: 0 0 0 3px rgba(0,212,255,0.15); }
+
+.vc-chip-add { display: flex; gap: 8px; align-items: center; }
+.vc-chip-add .vc-input { flex: 1; }
+.vc-help { color: #94a3b8; font-size: 0.8rem; margin-top: 6px; }

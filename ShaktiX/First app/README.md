@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ShaktiX Health App
 
 A comprehensive health and wellness application built with React, featuring AI-powered health analysis, telemedicine, and various health tracking tools.
@@ -76,3 +77,6 @@ src/
 ## License
 
 This project is licensed under the MIT License.
+=======
+# My Project
+>>>>>>> 86d5f10328250917be7e05b9687eb5d97af96f02

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evidence Locker Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        .btn-test {
+            background: #2196F3;
+        }
+        .btn-test:hover {
+            background: #1976D2;
+        }
+        .evidence-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid #4CAF50;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Evidence Locker Access Test</h1>
+        
+        <div class="evidence-info">
+            <h3>📋 Current Evidence Status</h3>
+            <p><strong>✅ Evidence Database:</strong> Active and Working</p>
+            <p><strong>📄 Stored Evidence:</strong> 1 record found</p>
+            <p><strong>🆔 Evidence ID:</strong> evidence-1758712154555</p>
+            <p><strong>📁 File:</strong> Unit 1.pdf (1.4 MB)</p>
+            <p><strong>🔗 Hash:</strong> 6ebd8b4ca27d538083772928f443fe31ecb426cee9457ef26be2709498d4075b</p>
+        </div>
+
+        <h3>🚀 Access Your Evidence Locker</h3>
+        <p>Choose one of these options to access your Evidence Locker:</p>
+        
+        <a href="http://localhost:3000/evidence-locker" class="btn" target="_blank">
+            🔒 Open Evidence Locker (Direct)
+        </a>
+        
+        <a href="http://localhost:3000/cybersecurity" class="btn" target="_blank">
+            🛡️ Go to Cybersecurity Page
+        </a>
+        
+        <button class="btn btn-test" onclick="testAPI()">
+            🧪 Test Evidence API
+        </button>
+
+        <div id="test-results"></div>
+
+        <h3>📖 How to Use</h3>
+        <ol>
+            <li><strong>Direct Access:</strong> Click "Open Evidence Locker" above</li>
+            <li><strong>Via Navigation:</strong> Go to Cybersecurity page → Click Evidence Locker card</li>
+            <li><strong>Search Evidence:</strong> Use Evidence ID: <code>evidence-1758712154555</code></li>
+            <li><strong>Upload New Evidence:</strong> Drag & drop any file to preserve it</li>
+        </ol>
+
+        <h3>🔍 Test Your Evidence</h3>
+        <div class="evidence-info">
+            <p><strong>To verify your existing evidence:</strong></p>
+            <ol>
+                <li>Go to Evidence Locker</li>
+                <li>In the search box, enter: <code>evidence-1758712154555</code></li>
+                <li>Click "🔍 Search"</li>
+                <li>You should see details for "Unit 1.pdf"</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML = '<div class="status">🔄 Testing Evidence API...</div>';
+            
+            try {
+                // Test evidence listing
+                const response = await fetch('http://localhost:3001/api/evidence');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultsDiv.innerHTML = `
+                        <div class="status success">
+                            ✅ <strong>API Test Successful!</strong><br>
+                            📊 Total Evidence Records: ${data.totalRecords}<br>
+                            🔗 Server Status: Connected<br>
+                            💾 Database Status: Active
+                        </div>
+                    `;
+                } else {
+                    throw new Error('API returned unsuccessful response');
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="status error">
+                        ❌ <strong>API Test Failed:</strong><br>
+                        Error: ${error.message}<br>
+                        💡 Make sure your server is running on port 3001
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-test on page load
+        window.onload = function() {
+            setTimeout(testAPI, 1000);
+        };
+    </script>
+</body>
+</html>
