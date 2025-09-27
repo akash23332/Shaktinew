@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ShaktiX</string>
+    <string name="title_activity_main">ShaktiX</string>
+    <string name="package_name">com.ShaktiX.com</string>
+    <string name="custom_url_scheme">com.ShaktiX.com</string>
+</resources>
